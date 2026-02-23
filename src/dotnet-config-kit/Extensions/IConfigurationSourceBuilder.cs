@@ -16,6 +16,38 @@ public interface IConfigurationSourceBuilder
     IConfigurationSourceBuilder AddJsonFile(string filePath);
 
     /// <summary>
+    /// Adds a YAML file source with optional hot-reload.
+    /// </summary>
+    /// <param name="filePath">The path to the YAML file.</param>
+    /// <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+    /// <returns>Self for method chaining.</returns>
+    IConfigurationSourceBuilder AddYamlFile(string filePath, bool enableHotReload = false);
+
+    /// <summary>
+    /// Adds a TOML file source with optional hot-reload.
+    /// </summary>
+    /// <param name="filePath">The path to the TOML file.</param>
+    /// <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+    /// <returns>Self for method chaining.</returns>
+    IConfigurationSourceBuilder AddTomlFile(string filePath, bool enableHotReload = false);
+
+    /// <summary>
+    /// Adds an INI file source with optional hot-reload.
+    /// </summary>
+    /// <param name="filePath">The path to the INI file.</param>
+    /// <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+    /// <returns>Self for method chaining.</returns>
+    IConfigurationSourceBuilder AddIniFile(string filePath, bool enableHotReload = false);
+
+    /// <summary>
+    /// Adds an XML file source with optional hot-reload.
+    /// </summary>
+    /// <param name="filePath">The path to the XML file.</param>
+    /// <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+    /// <returns>Self for method chaining.</returns>
+    IConfigurationSourceBuilder AddXmlFile(string filePath, bool enableHotReload = false);
+
+    /// <summary>
     /// Adds an environment variable source with optional prefix filtering.
     /// </summary>
     /// <param name="prefix">Optional prefix for filtering environment variables. Variables must start with prefix + underscore to be included.</param>

@@ -33,6 +33,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+    <PackageReference Include="YamlDotNet" Version="13.7.1" />
+    <PackageReference Include="Tomlyn" Version="0.16.2" />
   </ItemGroup>
 
 </Project>

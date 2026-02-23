@@ -48,6 +48,116 @@ internal sealed class ConfigurationSourceBuilder : IConfigurationSourceBuilder
         return this;
     }
 
+    /// <summary>
+    /// Adds a JSON file source with optional hot-reload.
+    /// </summary>
+    public IConfigurationSourceBuilder AddJsonFile(string filePath, bool enableHotReload = false)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(filePath, nameof(filePath));
+        var source = new FileConfigSource(filePath, new JsonConfigParser());
+        
+        if (enableHotReload)
+        {
+            var hotReloadSource = new HotReloadFileSource(source, true);
+            _services.AddSingleton(hotReloadSource);
+            _configBuilder.AddSource(hotReloadSource);
+        }
+        else
+        {
+            _configBuilder.AddSource(source);
+        }
+        
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a YAML file source.
+    /// </summary>
+    public IConfigurationSourceBuilder AddYamlFile(string filePath, bool enableHotReload = false)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(filePath, nameof(filePath));
+        var source = new FileConfigSource(filePath, new YamlConfigParser());
+        
+        if (enableHotReload)
+        {
+            var hotReloadSource = new HotReloadFileSource(source, true);
+            _services.AddSingleton(hotReloadSource);
+            _configBuilder.AddSource(hotReloadSource);
+        }
+        else
+        {
+            _configBuilder.AddSource(source);
+        }
+        
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a TOML file source.
+    /// </summary>
+    public IConfigurationSourceBuilder AddTomlFile(string filePath, bool enableHotReload = false)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(filePath, nameof(filePath));
+        var source = new FileConfigSource(filePath, new TomlConfigParser());
+        
+        if (enableHotReload)
+        {
+            var hotReloadSource = new HotReloadFileSource(source, true);
+            _services.AddSingleton(hotReloadSource);
+            _configBuilder.AddSource(hotReloadSource);
+        }
+        else
+        {
+            _configBuilder.AddSource(source);
+        }
+        
+        return this;
+    }
+
+    /// <summary>
+    /// Adds an INI file source.
+    /// </summary>
+    public IConfigurationSourceBuilder AddIniFile(string filePath, bool enableHotReload = false)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(filePath, nameof(filePath));
+        var source = new FileConfigSource(filePath, new IniConfigParser());
+        
+        if (enableHotReload)
+        {
+            var hotReloadSource = new HotReloadFileSource(source, true);
+            _services.AddSingleton(hotReloadSource);
+            _configBuilder.AddSource(hotReloadSource);
+        }
+        else
+        {
+            _configBuilder.AddSource(source);
+        }
+        
+        return this;
+    }
+
+    /// <summary>
+    /// Adds an XML file source.
+    /// </summary>
+    public IConfigurationSourceBuilder AddXmlFile(string filePath, bool enableHotReload = false)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(filePath, nameof(filePath));
+        var source = new FileConfigSource(filePath, new XmlConfigParser());
+        
+        if (enableHotReload)
+        {
+            var hotReloadSource = new HotReloadFileSource(source, true);
+            _services.AddSingleton(hotReloadSource);
+            _configBuilder.AddSource(hotReloadSource);
+        }
+        else
+        {
+            _configBuilder.AddSource(source);
+        }
+        
+        return this;
+    }
+
     /// <inheritdoc />
     public IConfigurationSourceBuilder AddEnvironmentVariables(string? prefix = null)
     {

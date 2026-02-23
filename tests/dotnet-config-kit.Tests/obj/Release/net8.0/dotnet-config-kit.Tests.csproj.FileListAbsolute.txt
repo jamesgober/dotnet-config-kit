@@ -110,3 +110,5 @@ C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Tests\obj\Release\n
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Tests\obj\Release\net8.0\dotnet-config-kit.Tests.pdb
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Tests\obj\Release\net8.0\dotnet-config-kit.Tests.genruntimeconfig.cache
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Tests\obj\Release\net8.0\ref\dotnet-config-kit.Tests.dll
+C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Tests\bin\Release\net8.0\Tomlyn.dll
+C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Tests\bin\Release\net8.0\YamlDotNet.dll

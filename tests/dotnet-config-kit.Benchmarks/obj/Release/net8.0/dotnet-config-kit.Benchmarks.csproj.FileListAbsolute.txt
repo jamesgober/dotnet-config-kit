@@ -86,3 +86,5 @@ C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Rele
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-config-kit.Benchmarks.pdb
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-config-kit.Benchmarks.genruntimeconfig.cache
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\ref\dotnet-config-kit.Benchmarks.dll
+C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\Tomlyn.dll
+C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\YamlDotNet.dll

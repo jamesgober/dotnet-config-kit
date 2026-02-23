@@ -246,6 +246,31 @@
         <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddJsonFile(System.String)">
             <inheritdoc />
         </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddJsonFile(System.String,System.Boolean)">
+            <summary>
+            Adds a JSON file source with optional hot-reload.
+            </summary>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddYamlFile(System.String,System.Boolean)">
+            <summary>
+            Adds a YAML file source.
+            </summary>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddTomlFile(System.String,System.Boolean)">
+            <summary>
+            Adds a TOML file source.
+            </summary>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddIniFile(System.String,System.Boolean)">
+            <summary>
+            Adds an INI file source.
+            </summary>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddXmlFile(System.String,System.Boolean)">
+            <summary>
+            Adds an XML file source.
+            </summary>
+        </member>
         <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddEnvironmentVariables(System.String)">
             <inheritdoc />
         </member>
@@ -273,6 +298,38 @@
             <param name="filePath">The path to the JSON file. Must not be null or empty.</param>
             <returns>Self for method chaining.</returns>
             <exception cref="T:System.ArgumentException">Thrown when filePath is null or empty.</exception>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddYamlFile(System.String,System.Boolean)">
+            <summary>
+            Adds a YAML file source with optional hot-reload.
+            </summary>
+            <param name="filePath">The path to the YAML file.</param>
+            <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+            <returns>Self for method chaining.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddTomlFile(System.String,System.Boolean)">
+            <summary>
+            Adds a TOML file source with optional hot-reload.
+            </summary>
+            <param name="filePath">The path to the TOML file.</param>
+            <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+            <returns>Self for method chaining.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddIniFile(System.String,System.Boolean)">
+            <summary>
+            Adds an INI file source with optional hot-reload.
+            </summary>
+            <param name="filePath">The path to the INI file.</param>
+            <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+            <returns>Self for method chaining.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddXmlFile(System.String,System.Boolean)">
+            <summary>
+            Adds an XML file source with optional hot-reload.
+            </summary>
+            <param name="filePath">The path to the XML file.</param>
+            <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+            <returns>Self for method chaining.</returns>
         </member>
         <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddEnvironmentVariables(System.String)">
             <summary>
@@ -350,6 +407,20 @@
         <member name="M:dotnet_config_kit.Internal.ConfigBuilder.LoadAsync(System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
+        <member name="T:dotnet_config_kit.Internal.Parsers.IniConfigParser">
+            <summary>
+            Parses INI configuration format into flat key-value pairs.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.Parsers.IniConfigParser.Format">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Parsers.IniConfigParser.Parse(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Parsers.IniConfigParser.ParseAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
         <member name="T:dotnet_config_kit.Internal.Parsers.JsonConfigParser">
             <summary>
             Parses JSON configuration format into flat key-value pairs.
@@ -362,6 +433,48 @@
             <inheritdoc />
         </member>
         <member name="M:dotnet_config_kit.Internal.Parsers.JsonConfigParser.ParseAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:dotnet_config_kit.Internal.Parsers.TomlConfigParser">
+            <summary>
+            Parses TOML configuration format into flat key-value pairs.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.Parsers.TomlConfigParser.Format">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Parsers.TomlConfigParser.Parse(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Parsers.TomlConfigParser.ParseAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:dotnet_config_kit.Internal.Parsers.XmlConfigParser">
+            <summary>
+            Parses XML configuration format into flat key-value pairs.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.Parsers.XmlConfigParser.Format">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Parsers.XmlConfigParser.Parse(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Parsers.XmlConfigParser.ParseAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:dotnet_config_kit.Internal.Parsers.YamlConfigParser">
+            <summary>
+            Parses YAML configuration format into flat key-value pairs.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.Parsers.YamlConfigParser.Format">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Parsers.YamlConfigParser.Parse(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Parsers.YamlConfigParser.ParseAsync(System.IO.Stream,System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:dotnet_config_kit.Internal.Sources.EnvironmentVariableConfigSource">
@@ -405,6 +518,45 @@
             <inheritdoc />
         </member>
         <member name="M:dotnet_config_kit.Internal.Sources.FileConfigSource.LoadAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:dotnet_config_kit.Internal.Sources.HotReloadFileSource">
+            <summary>
+            Wraps a file-based config source with hot-reload capability.
+            Watches for file changes and notifies subscribers.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.Sources.HotReloadFileSource.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.HotReloadFileSource.#ctor(dotnet_config_kit.Internal.Sources.FileConfigSource,System.Boolean)">
+            <summary>
+            Creates a new hot-reload file source.
+            </summary>
+            <param name="source">The underlying file source. Must not be null.</param>
+            <param name="enableWatcher">Whether to enable file watching. If false, behaves as normal source.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when source is null.</exception>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.HotReloadFileSource.Load">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.HotReloadFileSource.LoadAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.HotReloadFileSource.OnChange(System.Func{System.Collections.Generic.IReadOnlyDictionary{System.String,System.String},System.Threading.CancellationToken,System.Threading.Tasks.ValueTask})">
+            <summary>
+            Subscribes to configuration changes.
+            </summary>
+            <param name="callback">Called when configuration changes. Receives new config and cancellation token.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when callback is null.</exception>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.HotReloadFileSource.OnChange(System.Action{System.Collections.Generic.IReadOnlyDictionary{System.String,System.String}})">
+            <summary>
+            Subscribes to configuration changes (synchronous callback).
+            </summary>
+            <param name="callback">Called when configuration changes. Receives new config.</param>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.HotReloadFileSource.Dispose">
             <inheritdoc />
         </member>
         <member name="T:dotnet_config_kit.Internal.Sources.MemoryConfigSource">

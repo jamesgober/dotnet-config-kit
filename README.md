@@ -255,6 +255,11 @@ Apache 2.0 — See [LICENSE](./LICENSE) for details.
 
 ---
 
-**Name:** James Gober  
-**Email:** jamesgober@example.com  
-**Repository:** https://github.com/jamesgober/dotnet-config-kit
+<!--
+:: COPYRIGHT
+=========================== -->
+<div align="center">
+
+  <h2></h2>
+  <sup>COPYRIGHT <small>&copy;</small> 2026 <strong>JAMES GOBER.</strong></sup>
+</div>

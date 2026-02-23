@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-02-23
+
+### Added
+- YAML format parser via YamlDotNet with full nested structure support
+- TOML format parser via Tomlyn with table and array support
+- INI format parser with section and key-value support
+- XML format parser with element and attribute support
+- Hot-reload capability for file-based configuration sources with FileSystemWatcher
+- Configuration change notifications via callback subscribers
+- Extension methods for all format parsers: `AddYamlFile()`, `AddTomlFile()`, `AddIniFile()`, `AddXmlFile()`
+- Optional `enableHotReload` parameter on all file source methods
+- `OnChange()` extension for subscribing to configuration changes
+- Cross-platform file watching support
+
 ## [0.1.0] - 2026-01-15
 
 ### Added
@@ -23,5 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Performance benchmarks using BenchmarkDotNet
 - Full XML documentation on all public APIs
 
-[Unreleased]: https://github.com/jamesgober/dotnet-config-kit/compare/0.1.0...HEAD
+[Unreleased]: https://github.com/jamesgober/dotnet-config-kit/compare/0.2.0...HEAD
+[0.2.0]: https://github.com/jamesgober/dotnet-config-kit/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/jamesgober/dotnet-config-kit/releases/tag/0.1.0
