@@ -7,15 +7,15 @@
 
 ---
 
+A high-performance, multi-source configuration library for .NET. Supports JSON, YAML, TOML, INI, XML, environment variables, command-line arguments, user secrets, and custom sources. Binds to strongly-typed options with DataAnnotations validation, custom type converters, configuration profiles, hot-reload capability, zero-copy reads, and optional hot-reload. Built for production: fast, reliable, and secure.
+
+
 ## Quick Links
 
 [![Install NuGet](https://img.shields.io/badge/install-nuget-green?logo=nuget&style=for-the-badge)](https://www.nuget.org/packages/JG.ConfigKit/1.0.0)
 [![Get Started](https://img.shields.io/badge/get%20started-docs-blue?style=for-the-badge)](./docs/GETTING_STARTED.md)
 [![View on GitHub](https://img.shields.io/badge/view%20on-github-black?logo=github&style=for-the-badge)](https://github.com/jamesgober/dotnet-config-kit)
 
----
-
-A high-performance, multi-source configuration library for .NET. Supports JSON, YAML, TOML, INI, XML, environment variables, command-line arguments, user secrets, and custom sources. Binds to strongly-typed options with DataAnnotations validation, custom type converters, configuration profiles, hot-reload capability, zero-copy reads, and optional hot-reload. Built for production: fast, reliable, and secure.
 
 ## Features
 
