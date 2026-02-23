@@ -1,0 +1,433 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>dotnet-config-kit</name>
+    </assembly>
+    <members>
+        <member name="T:dotnet_config_kit.Abstractions.IConfigBinder`1">
+            <summary>
+            Validates configuration against a type schema and provides strongly-typed access.
+            </summary>
+            <typeparam name="T">The target type to bind configuration to.</typeparam>
+            <remarks>
+            Implementations perform type conversion, validation, and error reporting.
+            Must handle: null/missing values, type mismatches, collection binding, nested objects, and custom converters.
+            All conversion failures must be reported with clear paths to the problematic configuration.
+            Thread-safe for reading and binding, but configuration should not be mutated during binding.
+            </remarks>
+        </member>
+        <member name="M:dotnet_config_kit.Abstractions.IConfigBinder`1.Bind(System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})">
+            <summary>
+            Binds flat configuration to a strongly-typed object.
+            </summary>
+            <param name="configuration">The flat key-value configuration dictionary.</param>
+            <returns>A new instance of <typeparamref name="T"/> with configuration applied.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="configuration"/> is null.</exception>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when configuration cannot be bound due to type mismatches, validation failures, or missing required values.
+            </exception>
+            <remarks>
+            Default values (CLR defaults) are used for missing configuration keys.
+            Required fields must be marked explicitly; primitive types are assumed optional.
+            Collections are bound by matching key patterns (e.g., "items:0:name", "items:1:name").
+            </remarks>
+        </member>
+        <member name="M:dotnet_config_kit.Abstractions.IConfigBinder`1.BindAsync(System.Collections.Generic.IReadOnlyDictionary{System.String,System.String},System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously binds flat configuration to a strongly-typed object.
+            </summary>
+            <param name="configuration">The flat key-value configuration dictionary.</param>
+            <param name="cancellationToken">Cancellation token for the operation.</param>
+            <returns>A task that returns a new instance of <typeparamref name="T"/> when complete.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="configuration"/> is null.</exception>
+            <exception cref="T:System.InvalidOperationException">
+            Thrown when configuration cannot be bound due to type mismatches, validation failures, or missing required values.
+            </exception>
+            <remarks>
+            Async binding allows for custom converters that may perform I/O (e.g., validating with external services).
+            For most cases, use the synchronous Bind method.
+            </remarks>
+        </member>
+        <member name="M:dotnet_config_kit.Abstractions.IConfigBinder`1.GetValidationErrors(System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})">
+            <summary>
+            Gets validation errors for the configuration, if any.
+            </summary>
+            <remarks>
+            Returns an empty collection if the configuration is valid.
+            Validation is performed automatically during binding; this method allows checking without binding.
+            </remarks>
+        </member>
+        <member name="T:dotnet_config_kit.Abstractions.ConfigurationError">
+            <summary>
+            Represents a single configuration validation error.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Abstractions.ConfigurationError.Path">
+            <summary>
+            Gets the dot-notation path to the problematic configuration value.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Abstractions.ConfigurationError.Message">
+            <summary>
+            Gets the error message describing the validation failure.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Abstractions.ConfigurationError.AttemptedValue">
+            <summary>
+            Gets the actual value that failed validation, if available.
+            </summary>
+            <remarks>
+            May be null if the error is due to a missing required value.
+            </remarks>
+        </member>
+        <member name="T:dotnet_config_kit.Abstractions.IConfigBuilder">
+            <summary>
+            Loads and aggregates configuration from multiple sources.
+            </summary>
+            <remarks>
+            This is the primary entry point for configuration loading. Sources are loaded in registration order,
+            with later sources overriding earlier ones (last write wins). Supports synchronous and asynchronous loading.
+            Thread-safe for loading, but configuration should not be mutated during iteration.
+            </remarks>
+        </member>
+        <member name="P:dotnet_config_kit.Abstractions.IConfigBuilder.Configuration">
+            <summary>
+            Gets the aggregated configuration as a flat key-value dictionary.
+            </summary>
+            <remarks>
+            Keys are lowercase. Values are strings. Empty dictionary if no sources have been loaded.
+            The returned dictionary is a snapshot; subsequent source changes do not affect it.
+            </remarks>
+        </member>
+        <member name="M:dotnet_config_kit.Abstractions.IConfigBuilder.Load">
+            <summary>
+            Loads configuration from all registered sources synchronously.
+            </summary>
+            <returns>Self for method chaining.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when loading fails for a required source.</exception>
+            <remarks>
+            Sources are loaded in order. Later sources override earlier ones. Partial failures are logged
+            but do not prevent subsequent sources from loading (unless configured as required).
+            </remarks>
+        </member>
+        <member name="M:dotnet_config_kit.Abstractions.IConfigBuilder.LoadAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously loads configuration from all registered sources.
+            </summary>
+            <param name="cancellationToken">Cancellation token for the operation.</param>
+            <returns>Self for method chaining.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when loading fails for a required source.</exception>
+            <exception cref="T:System.OperationCanceledException">Thrown when <paramref name="cancellationToken"/> is cancelled.</exception>
+            <remarks>
+            Sources are loaded concurrently where possible, but ordering semantics are preserved
+            (later sources override earlier ones, regardless of actual completion order).
+            </remarks>
+        </member>
+        <member name="T:dotnet_config_kit.Abstractions.IConfigParser">
+            <summary>
+            Parses configuration from a specific format into a flat key-value dictionary.
+            </summary>
+            <remarks>
+            All implementations must normalize keys to dot-notation format (e.g., "section.subsection.key").
+            Values are stored as strings. The parser must handle edge cases: null, empty strings,
+            deeply nested structures, and duplicate keys (last occurrence wins).
+            Thread-safe. May be called multiple times.
+            </remarks>
+        </member>
+        <member name="P:dotnet_config_kit.Abstractions.IConfigParser.Format">
+            <summary>
+            Gets the format this parser handles (e.g., "json", "yaml", "toml").
+            </summary>
+            <remarks>
+            Used for diagnostics and format-specific routing. Case-insensitive comparison is recommended.
+            </remarks>
+        </member>
+        <member name="M:dotnet_config_kit.Abstractions.IConfigParser.Parse(System.String)">
+            <summary>
+            Parses configuration content into a flat key-value dictionary.
+            </summary>
+            <param name="content">The raw configuration content to parse. Must not be null or empty.</param>
+            <returns>
+            A dictionary of flat key-value pairs where keys are in dot-notation format.
+            Empty dictionary if content is empty or contains no configuration data.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="content"/> is null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when content is invalid for the format.</exception>
+            <exception cref="T:System.InvalidOperationException">Thrown when parsing fails for reasons other than format invalidity.</exception>
+            <remarks>
+            The returned dictionary owns the keys and values; the parser must not retain references.
+            All keys are converted to lowercase for case-insensitive access.
+            </remarks>
+        </member>
+        <member name="M:dotnet_config_kit.Abstractions.IConfigParser.ParseAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously parses configuration content from a stream.
+            </summary>
+            <param name="stream">The stream to read configuration from. Must not be null.</param>
+            <param name="cancellationToken">Cancellation token for the operation.</param>
+            <returns>
+            A task that returns a dictionary of flat key-value pairs when complete.
+            Empty dictionary if stream is empty or contains no configuration data.
+            </returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="stream"/> is null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when content is invalid for the format.</exception>
+            <exception cref="T:System.OperationCanceledException">Thrown when <paramref name="cancellationToken"/> is cancelled.</exception>
+            <remarks>
+            No seek behavior is guaranteed. The stream position after completion is undefined.
+            For best performance, use buffered streams.
+            </remarks>
+        </member>
+        <member name="T:dotnet_config_kit.Abstractions.IConfigSource">
+            <summary>
+            Provides configuration from a specific source.
+            </summary>
+            <remarks>
+            Sources can be files, environment variables, memory, command-line arguments, or any external provider.
+            Implementations are responsible for loading data and converting it to a flat key-value dictionary.
+            Thread-safe. May be called multiple times across different instances.
+            </remarks>
+        </member>
+        <member name="P:dotnet_config_kit.Abstractions.IConfigSource.Name">
+            <summary>
+            Gets a human-readable name for this source (e.g., "appsettings.json", "Environment Variables").
+            </summary>
+            <remarks>
+            Used for diagnostics, logging, and error reporting. Should uniquely identify the source.
+            </remarks>
+        </member>
+        <member name="M:dotnet_config_kit.Abstractions.IConfigSource.Load">
+            <summary>
+            Loads configuration from this source.
+            </summary>
+            <returns>
+            A dictionary of configuration keys and values in flat dot-notation format.
+            Empty dictionary if the source is unavailable or empty.
+            </returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when the source is misconfigured or unavailable.</exception>
+            <remarks>
+            Graceful degradation is preferred: if a source is optional and unavailable, return an empty dictionary
+            rather than throwing. Only throw for configuration errors or required sources that cannot be loaded.
+            </remarks>
+        </member>
+        <member name="M:dotnet_config_kit.Abstractions.IConfigSource.LoadAsync(System.Threading.CancellationToken)">
+            <summary>
+            Asynchronously loads configuration from this source.
+            </summary>
+            <param name="cancellationToken">Cancellation token for the operation.</param>
+            <returns>
+            A task that returns a dictionary of configuration keys and values when complete.
+            Empty dictionary if the source is unavailable or empty.
+            </returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when the source is misconfigured or unavailable.</exception>
+            <exception cref="T:System.OperationCanceledException">Thrown when <paramref name="cancellationToken"/> is cancelled.</exception>
+            <remarks>
+            Graceful degradation is preferred: if a source is optional and unavailable, return an empty dictionary.
+            Timeout calls that may hang indefinitely (e.g., remote sources). Maximum wait is source-dependent.
+            </remarks>
+        </member>
+        <member name="T:dotnet_config_kit.Extensions.ConfigurationServiceCollectionExtensions">
+            <summary>
+            Extension methods for registering configuration services with dependency injection.
+            </summary>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationServiceCollectionExtensions.AddConfiguration(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Registers the configuration library services.
+            </summary>
+            <param name="services">The service collection to register with. Must not be null.</param>
+            <returns>A builder for fluently configuring configuration sources.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="services"/> is null.</exception>
+        </member>
+        <member name="T:dotnet_config_kit.Extensions.ConfigurationSourceBuilder">
+            <summary>
+            Implementation of fluent builder for registering configuration sources.
+            </summary>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddJsonFile(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddEnvironmentVariables(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddMemory(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}},System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddSource(dotnet_config_kit.Abstractions.IConfigSource)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.Build``1">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.BuildAsync``1(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:dotnet_config_kit.Extensions.IConfigurationSourceBuilder">
+            <summary>
+            Builder for fluently registering configuration sources and binding options.
+            </summary>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddJsonFile(System.String)">
+            <summary>
+            Adds a JSON file source.
+            </summary>
+            <param name="filePath">The path to the JSON file. Must not be null or empty.</param>
+            <returns>Self for method chaining.</returns>
+            <exception cref="T:System.ArgumentException">Thrown when filePath is null or empty.</exception>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddEnvironmentVariables(System.String)">
+            <summary>
+            Adds an environment variable source with optional prefix filtering.
+            </summary>
+            <param name="prefix">Optional prefix for filtering environment variables. Variables must start with prefix + underscore to be included.</param>
+            <returns>Self for method chaining.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddMemory(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}},System.String)">
+            <summary>
+            Adds an in-memory configuration source.
+            </summary>
+            <param name="data">The configuration data. Must not be null.</param>
+            <param name="name">Optional name for this source.</param>
+            <returns>Self for method chaining.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="data"/> is null.</exception>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddSource(dotnet_config_kit.Abstractions.IConfigSource)">
+            <summary>
+            Adds a custom configuration source.
+            </summary>
+            <param name="source">The source to add. Must not be null.</param>
+            <returns>Self for method chaining.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="source"/> is null.</exception>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.Build``1">
+            <summary>
+            Registers a configuration binder for the specified type and loads all sources.
+            </summary>
+            <typeparam name="T">The type to bind configuration to.</typeparam>
+            <returns>The fully configured service collection.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.BuildAsync``1(System.Threading.CancellationToken)">
+            <summary>
+            Registers a configuration binder for the specified type and asynchronously loads all sources.
+            </summary>
+            <typeparam name="T">The type to bind configuration to.</typeparam>
+            <param name="cancellationToken">Cancellation token for the async operation.</param>
+            <returns>A task that returns the fully configured service collection.</returns>
+        </member>
+        <member name="T:dotnet_config_kit.Internal.Binding.ReflectionConfigBinder`1">
+            <summary>
+            Binds flat configuration to strongly-typed objects using reflection.
+            </summary>
+            <typeparam name="T">The target type to bind configuration to.</typeparam>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Binding.ReflectionConfigBinder`1.Bind(System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Binding.ReflectionConfigBinder`1.BindAsync(System.Collections.Generic.IReadOnlyDictionary{System.String,System.String},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Binding.ReflectionConfigBinder`1.GetValidationErrors(System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})">
+            <inheritdoc />
+        </member>
+        <member name="T:dotnet_config_kit.Internal.ConfigBuilder">
+            <summary>
+            Builds and aggregates configuration from multiple sources in registration order.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.ConfigBuilder.Configuration">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigBuilder.AddSource(dotnet_config_kit.Abstractions.IConfigSource)">
+            <summary>
+            Registers a configuration source.
+            </summary>
+            <param name="source">The source to register. Must not be null.</param>
+            <returns>Self for method chaining.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="source"/> is null.</exception>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigBuilder.Load">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigBuilder.LoadAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:dotnet_config_kit.Internal.Parsers.JsonConfigParser">
+            <summary>
+            Parses JSON configuration format into flat key-value pairs.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.Parsers.JsonConfigParser.Format">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Parsers.JsonConfigParser.Parse(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Parsers.JsonConfigParser.ParseAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:dotnet_config_kit.Internal.Sources.EnvironmentVariableConfigSource">
+            <summary>
+            Loads configuration from environment variables with an optional prefix.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.Sources.EnvironmentVariableConfigSource.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.EnvironmentVariableConfigSource.#ctor(System.String)">
+            <summary>
+            Creates a new environment variable configuration source.
+            </summary>
+            <param name="prefix">Optional prefix for filtering environment variables. If provided, only variables starting with this prefix (followed by underscore) are included.</param>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.EnvironmentVariableConfigSource.Load">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.EnvironmentVariableConfigSource.LoadAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:dotnet_config_kit.Internal.Sources.FileConfigSource">
+            <summary>
+            Loads configuration from a file using a specified parser.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.Sources.FileConfigSource.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.FileConfigSource.#ctor(System.String,dotnet_config_kit.Abstractions.IConfigParser)">
+            <summary>
+            Creates a new file-based configuration source.
+            </summary>
+            <param name="filePath">The path to the configuration file. Must not be null or empty.</param>
+            <param name="parser">The parser to use for the file format. Must not be null.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when parameters are null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when filePath is empty.</exception>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.FileConfigSource.Load">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.FileConfigSource.LoadAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:dotnet_config_kit.Internal.Sources.MemoryConfigSource">
+            <summary>
+            Loads configuration from an in-memory dictionary.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.Sources.MemoryConfigSource.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.MemoryConfigSource.#ctor(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}},System.String)">
+            <summary>
+            Creates a new memory-based configuration source.
+            </summary>
+            <param name="data">The configuration data. Must not be null. Keys are case-insensitive.</param>
+            <param name="name">Optional name for this source. Defaults to "Memory".</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="data"/> is null.</exception>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.MemoryConfigSource.Load">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.MemoryConfigSource.LoadAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

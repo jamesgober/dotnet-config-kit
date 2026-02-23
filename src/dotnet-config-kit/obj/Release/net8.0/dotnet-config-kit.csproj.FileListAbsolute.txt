@@ -1,0 +1,15 @@
+C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\obj\Release\net8.0\dotnet-config-kit.csproj.AssemblyReference.cache
+C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\obj\Release\net8.0\dotnet-config-kit.GeneratedMSBuildEditorConfig.editorconfig
+C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\obj\Release\net8.0\dotnet-config-kit.AssemblyInfoInputs.cache
+C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\obj\Release\net8.0\dotnet-config-kit.AssemblyInfo.cs
+C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\obj\Release\net8.0\dotnet-config-kit.csproj.CoreCompileInputs.cache
+C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\obj\Release\net8.0\dotnet-config-kit.sourcelink.json
+C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\obj\Release\net8.0\dotnet-config-kit.xml
+C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\bin\Release\net8.0\dotnet-config-kit.deps.json
+C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\bin\Release\net8.0\dotnet-config-kit.dll
+C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\bin\Release\net8.0\dotnet-config-kit.pdb
+C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\bin\Release\net8.0\dotnet-config-kit.xml
+C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\obj\Release\net8.0\dotnet-config-kit.dll
+C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\obj\Release\net8.0\refint\dotnet-config-kit.dll
+C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\obj\Release\net8.0\dotnet-config-kit.pdb
+C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\obj\Release\net8.0\ref\dotnet-config-kit.dll

@@ -5,90 +5,256 @@
         <sup><br><sub>CONFIGURATION MANAGEMENT</sub></sup>
     </h1>
     <div>
-        <a href="https://www.nuget.org/packages/dotnet-config-kit"><img alt="NuGet" src="https://img.shields.io/nuget/v/dotnet-config-kit"></a>
+        <a href="https://www.nuget.org/packages/JG.ConfigKit"><img alt="NuGet" src="https://img.shields.io/nuget/v/JG.ConfigKit"></a>
         <span>&nbsp;</span>
-        <a href="https://www.nuget.org/packages/dotnet-config-kit"><img alt="NuGet Downloads" src="https://img.shields.io/nuget/dt/dotnet-config-kit?color=%230099ff"></a>
+        <a href="https://www.nuget.org/packages/JG.ConfigKit"><img alt="NuGet Downloads" src="https://img.shields.io/nuget/dt/JG.ConfigKit?color=%230099ff"></a>
         <span>&nbsp;</span>
         <a href="./LICENSE" title="License"><img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-blue.svg"></a>
         <span>&nbsp;</span>
         <a href="https://github.com/jamesgober/dotnet-config-kit/actions"><img alt="GitHub CI" src="https://github.com/jamesgober/dotnet-config-kit/actions/workflows/ci.yml/badge.svg"></a>
     </div>
 </div>
-<br>
-<p>
-    A lightweight, high-performance configuration library for .NET applications. Loads from multiple sources (JSON files, environment variables, in-memory dictionaries, user secrets), binds to strongly-typed options classes, validates on startup, and optionally hot-reloads on file changes — all with minimal overhead.
-</p>
+
+A high-performance, multi-source configuration library for .NET. Loads from JSON files, environment variables, memory, and custom sources in registration order. Binds to strongly-typed options with validation, zero-copy reads, and optional hot-reload. Built for production: fast, reliable, and secure.
 
 ## Features
 
-- **Multi-Source Loading** — JSON files, environment variables, command-line args, in-memory providers, and user secrets with layered override priority
-- **Strongly-Typed Binding** — Bind configuration sections directly to POCO classes with full nested object support
-- **Validation** — Data annotation validation on startup with clear error reporting; fail fast, not at runtime
-- **Hot-Reload** — Optional file-watcher that pushes updated config without restart
-- **Environment Awareness** — Automatic `appsettings.{Environment}.json` layering
-- **Minimal API** — Single extension method: `services.AddAppConfig<T>()`
-- **Zero Allocation Reads** — Cached options instances; reads are lock-free after initial bind
-
-<br>
+- **Multi-Source Loading** — JSON, environment variables, in-memory dictionaries, and custom sources with override priority by registration order
+- **Strongly-Typed Binding** — Bind flat configuration to POCO classes with nested object and collection support
+- **Validation** — Type checking and error reporting during binding with clear paths to configuration errors
+- **Async-First Design** — Async load paths with `ValueTask<T>` for performance; sync paths also available
+- **Zero-Copy Reads** — Configuration cached after loading; reads are lock-free and allocation-free
+- **Extensible** — Custom sources and parsers via simple interfaces
 
 ## Installation
 
 ```bash
-dotnet add package dotnet-config-kit
+dotnet add package JG.ConfigKit
 ```
-
-<br>
 
 ## Quick Start
 
-```csharp
-// Register configuration in Program.cs
-builder.Services.AddAppConfig<AppSettings>();
+Define a configuration class:
 
-// Inject anywhere via DI
-public class MyService(IOptions<AppSettings> options)
+```csharp
+public class DatabaseSettings
 {
-    private readonly AppSettings _config = options.Value;
+    public string Host { get; set; } = "localhost";
+    public int Port { get; set; } = 5432;
+    public string Username { get; set; } = "";
+    public string Password { get; set; } = "";
 }
 ```
 
-<br>
+Register and use in dependency injection:
 
-## Documentation
+```csharp
+var services = new ServiceCollection();
 
-- **[API Reference](./docs/API.md)** — Full API documentation and examples
+services
+    .AddConfiguration()
+    .AddJsonFile("appsettings.json")
+    .AddEnvironmentVariables("MYAPP")
+    .Build<DatabaseSettings>();
 
-<br>
+var serviceProvider = services.BuildServiceProvider();
+var dbSettings = serviceProvider.GetRequiredService<DatabaseSettings>();
 
-## Contributing
-
-Contributions welcome. Please:
-1. Ensure all tests pass before submitting
-2. Follow existing code style and patterns
-3. Update documentation as needed
-
-<br>
-
-## Testing
-
-```bash
-dotnet test
+Console.WriteLine($"Connecting to {dbSettings.Host}:{dbSettings.Port}");
 ```
 
-<br>
-<hr>
-<br>
+Environment variables are matched case-insensitively with underscores converted to dots:
 
-<div id="license">
-    <h2>⚖️ License</h2>
-    <p>Licensed under the <b>Apache License</b>, version 2.0 (the <b>"License"</b>); you may not use this software, including, but not limited to the source code, media files, ideas, techniques, or any other associated property or concept belonging to, associated with, or otherwise packaged with this software except in compliance with the <b>License</b>.</p>
-    <p>You may obtain a copy of the <b>License</b> at: <a href="http://www.apache.org/licenses/LICENSE-2.0" title="Apache-2.0 License" target="_blank">http://www.apache.org/licenses/LICENSE-2.0</a>.</p>
-    <p>Unless required by applicable law or agreed to in writing, software distributed under the <b>License</b> is distributed on an "<b>AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND</b>, either express or implied.</p>
-    <p>See the <a href="./LICENSE" title="Software License file">LICENSE</a> file included with this project for the specific language governing permissions and limitations under the <b>License</b>.</p>
-    <br>
-</div>
+```bash
+export MYAPP_HOST=prod.db.example.com
+export MYAPP_PORT=5433
+# Binds to Host="prod.db.example.com", Port=5433
+```
 
-<div align="center">
-    <h2></h2>
-    <sup>COPYRIGHT <small>&copy;</small> 2025 <strong>JAMES GOBER.</strong></sup>
-</div>
+## Configuration Sources
+
+### JSON Files
+
+```csharp
+.AddJsonFile("appsettings.json")
+```
+
+File format:
+```json
+{
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "username": "admin"
+  },
+  "debug": true
+}
+```
+
+All keys are flattened to dot-notation internally: `database.host`, `database.port`, etc.
+
+### Environment Variables
+
+```csharp
+.AddEnvironmentVariables("MYAPP")
+```
+
+Environment variables with the prefix (followed by underscore) are included. Underscores become dots:
+
+```bash
+MYAPP_DATABASE_HOST=localhost      # → database.host
+MYAPP_DEBUG=true                   # → debug
+```
+
+### In-Memory Dictionaries
+
+```csharp
+.AddMemory(new Dictionary<string, string>
+{
+    { "database.host", "localhost" },
+    { "database.port", "5432" }
+})
+```
+
+### Custom Sources
+
+Implement `IConfigSource`:
+
+```csharp
+public class CustomSource : IConfigSource
+{
+    public string Name => "Custom";
+    
+    public IReadOnlyDictionary<string, string> Load()
+    {
+        return new Dictionary<string, string>
+        {
+            { "key", "value" }
+        };
+    }
+    
+    public ValueTask<IReadOnlyDictionary<string, string>> LoadAsync(CancellationToken cancellationToken = default)
+    {
+        return new ValueTask<IReadOnlyDictionary<string, string>>(Load());
+    }
+}
+
+// Register
+.AddSource(new CustomSource())
+```
+
+## Type Binding
+
+Configuration is bound to public properties. Supported types:
+
+- String, bool, int, long, float, double, decimal
+- Guid, DateTime, TimeSpan
+- Enums (case-insensitive)
+- Nullable types
+- Collections (arrays, lists) via array indexing
+
+Example with nested objects:
+
+```csharp
+public class AppSettings
+{
+    public DatabaseSettings Database { get; set; } = new();
+    public LogSettings Log { get; set; } = new();
+}
+
+public class DatabaseSettings
+{
+    public string Host { get; set; } = "localhost";
+    public int Port { get; set; } = 5432;
+}
+
+public class LogSettings
+{
+    public LogLevel Level { get; set; } = LogLevel.Info;
+}
+
+public enum LogLevel { Debug, Info, Warning, Error }
+```
+
+Configuration file:
+```json
+{
+  "database": {
+    "host": "prod.db.example.com",
+    "port": 5433
+  },
+  "log": {
+    "level": "Warning"
+  }
+}
+```
+
+Binding:
+```csharp
+services
+    .AddConfiguration()
+    .AddJsonFile("appsettings.json")
+    .Build<AppSettings>();
+```
+
+## Error Handling
+
+Binding errors include the configuration path and actual value:
+
+```
+InvalidOperationException: Configuration binding failed with 1 error(s):
+  database.port: Failed to bind to type Int32: Cannot convert 'not_a_number' to int
+```
+
+Use `IConfigBinder<T>.GetValidationErrors()` to check for errors without throwing:
+
+```csharp
+var binder = serviceProvider.GetRequiredService<IConfigBinder<AppSettings>>();
+var errors = binder.GetValidationErrors(configuration);
+
+if (errors.Count > 0)
+{
+    foreach (var error in errors)
+    {
+        Console.WriteLine($"{error.Path}: {error.Message}");
+    }
+}
+```
+
+## Performance
+
+Configuration is loaded once during application startup and cached. All subsequent reads are lock-free and allocation-free.
+
+To benchmark your application:
+
+```bash
+dotnet run --project tests/dotnet-config-kit.Benchmarks -c Release
+```
+
+## Architecture
+
+- **`Abstractions/`** — `IConfigParser`, `IConfigSource`, `IConfigBinder<T>`, `IConfigBuilder`
+- **`Internal/`** — Implementation: `ConfigBuilder`, parsers, sources, binders
+- **`Extensions/`** — `AddConfiguration()` and fluent builder API
+
+All internal types are sealed and implementation-hidden. Depend on abstractions.
+
+## Thread Safety
+
+Configuration is immutable after loading. The `IConfigBuilder.Configuration` dictionary is thread-safe for reading.
+
+Custom sources should be thread-safe if they may be called concurrently.
+
+## Supported .NET Versions
+
+- .NET 8.0 and later
+
+## License
+
+Apache 2.0 — See [LICENSE](./LICENSE) for details.
+
+---
+
+**Name:** James Gober  
+**Email:** jamesgober@example.com  
+**Repository:** https://github.com/jamesgober/dotnet-config-kit
