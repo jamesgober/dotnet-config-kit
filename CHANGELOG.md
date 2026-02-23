@@ -7,7 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.0] - 2026-03-01
+## [0.4.0] - 2026-02-23
+
+### Added
+- Remote HTTP configuration source with optional polling for automatic updates
+- Configuration merging strategies: `LastWins`, `FirstWins`, `Merge`, `Throw`
+- Configuration serialization to JSON and YAML formats for export and debugging
+- Lazy configuration loading with optional timeout for deferred initialization
+- `AddHttpSource()` extension method for HTTP endpoints with configurable polling
+- `WithMergeStrategy()` method to control how multiple sources are combined
+- `AddLazySource()` method to defer source loading until first access
+- `ExportAsJson()` and `ExportAsYaml()` methods for configuration export
+- `HttpConfigSource` class for loading configuration from remote endpoints
+- `ConfigurationMerger` for flexible source combination strategies
+- `ConfigurationSerializer` for exporting configuration to standard formats
+- `LazyConfigSource` wrapper for lazy-loaded configuration sources
+
+## [0.3.0] - 2026-02-23
 
 ### Added
 - Command-line arguments source with support for `--key=value`, `--key value`, and `-k value` formats
@@ -50,7 +66,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Performance benchmarks using BenchmarkDotNet
 - Full XML documentation on all public APIs
 
-[Unreleased]: https://github.com/jamesgober/dotnet-config-kit/compare/0.3.0...HEAD
+[Unreleased]: https://github.com/jamesgober/dotnet-config-kit/compare/0.4.0...HEAD
+[0.4.0]: https://github.com/jamesgober/dotnet-config-kit/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/jamesgober/dotnet-config-kit/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/jamesgober/dotnet-config-kit/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/jamesgober/dotnet-config-kit/releases/tag/0.1.0

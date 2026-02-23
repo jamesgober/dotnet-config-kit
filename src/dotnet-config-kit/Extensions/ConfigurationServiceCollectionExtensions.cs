@@ -211,6 +211,49 @@ internal sealed class ConfigurationSourceBuilder : IConfigurationSourceBuilder
     }
 
     /// <inheritdoc />
+    public IConfigurationSourceBuilder AddHttpSource(Uri endpoint, IConfigParser parser, int? pollIntervalSeconds = null)
+    {
+        ArgumentNullException.ThrowIfNull(endpoint, nameof(endpoint));
+        ArgumentNullException.ThrowIfNull(parser, nameof(parser));
+
+        var source = new HttpConfigSource(endpoint, parser, pollIntervalSeconds);
+        _services.AddSingleton(source);
+        _configBuilder.AddSource(source);
+
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IConfigurationSourceBuilder WithMergeStrategy(MergeStrategy strategy)
+    {
+        _configBuilder.SetMergeStrategy(strategy);
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IConfigurationSourceBuilder AddLazySource(IConfigSource source, int? timeoutSeconds = null)
+    {
+        ArgumentNullException.ThrowIfNull(source, nameof(source));
+
+        var lazySource = new LazyConfigSource(source, timeoutSeconds);
+        _configBuilder.AddSource(lazySource);
+
+        return this;
+    }
+
+    /// <inheritdoc />
+    public string ExportAsJson(bool indent = true)
+    {
+        return ConfigurationSerializer.ExportAsJson(_configBuilder.Configuration, indent);
+    }
+
+    /// <inheritdoc />
+    public string ExportAsYaml()
+    {
+        return ConfigurationSerializer.ExportAsYaml(_configBuilder.Configuration);
+    }
+
+    /// <inheritdoc />
     public IConfigurationSourceBuilder AddSource(IConfigSource source)
     {
         ArgumentNullException.ThrowIfNull(source, nameof(source));

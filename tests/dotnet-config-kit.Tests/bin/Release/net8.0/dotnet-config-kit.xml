@@ -311,6 +311,21 @@
         <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.WithAutoProfile">
             <inheritdoc />
         </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddHttpSource(System.Uri,dotnet_config_kit.Abstractions.IConfigParser,System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.WithMergeStrategy(dotnet_config_kit.Internal.MergeStrategy)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddLazySource(dotnet_config_kit.Abstractions.IConfigSource,System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.ExportAsJson(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.ExportAsYaml">
+            <inheritdoc />
+        </member>
         <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddSource(dotnet_config_kit.Abstractions.IConfigSource)">
             <inheritdoc />
         </member>
@@ -400,12 +415,42 @@
             </summary>
             <returns>Self for method chaining.</returns>
         </member>
-        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddEnvironmentVariables(System.String)">
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddHttpSource(System.Uri,dotnet_config_kit.Abstractions.IConfigParser,System.Nullable{System.Int32})">
             <summary>
-            Adds an environment variable source with optional prefix filtering.
+            Adds an HTTP configuration source with optional polling.
             </summary>
-            <param name="prefix">Optional prefix for filtering environment variables. Variables must start with prefix + underscore to be included.</param>
+            <param name="endpoint">The HTTP endpoint URL. Must be HTTP or HTTPS.</param>
+            <param name="parser">The parser for the response format (JSON, YAML, etc.).</param>
+            <param name="pollIntervalSeconds">Optional polling interval in seconds. If set, configuration is reloaded periodically.</param>
             <returns>Self for method chaining.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.WithMergeStrategy(dotnet_config_kit.Internal.MergeStrategy)">
+            <summary>
+            Sets the merge strategy for combining multiple sources.
+            </summary>
+            <param name="strategy">The merge strategy to use.</param>
+            <returns>Self for method chaining.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddLazySource(dotnet_config_kit.Abstractions.IConfigSource,System.Nullable{System.Int32})">
+            <summary>
+            Wraps a source with lazy loading (deferred until first access).
+            </summary>
+            <param name="source">The source to wrap.</param>
+            <param name="timeoutSeconds">Optional timeout in seconds.</param>
+            <returns>Self for method chaining.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.ExportAsJson(System.Boolean)">
+            <summary>
+            Exports the current configuration to JSON format.
+            </summary>
+            <param name="indent">Whether to format with indentation.</param>
+            <returns>JSON string representation of the configuration.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.ExportAsYaml">
+            <summary>
+            Exports the current configuration to YAML format.
+            </summary>
+            <returns>YAML string representation of the configuration.</returns>
         </member>
         <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddMemory(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}},System.String)">
             <summary>
@@ -492,6 +537,11 @@
             <returns>Self for method chaining.</returns>
             <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="source"/> is null.</exception>
         </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigBuilder.SetMergeStrategy(dotnet_config_kit.Internal.MergeStrategy)">
+            <summary>
+            Sets the merge strategy for combining sources.
+            </summary>
+        </member>
         <member name="M:dotnet_config_kit.Internal.ConfigBuilder.SetProfile(System.String)">
             <summary>
             Sets the active configuration profile.
@@ -512,6 +562,44 @@
         </member>
         <member name="M:dotnet_config_kit.Internal.ConfigBuilder.LoadAsync(System.Threading.CancellationToken)">
             <inheritdoc />
+        </member>
+        <member name="T:dotnet_config_kit.Internal.MergeStrategy">
+            <summary>
+            Strategy for merging configuration from multiple sources.
+            </summary>
+        </member>
+        <member name="F:dotnet_config_kit.Internal.MergeStrategy.LastWins">
+            <summary>
+            Later sources override earlier ones (default behavior).
+            </summary>
+        </member>
+        <member name="F:dotnet_config_kit.Internal.MergeStrategy.FirstWins">
+            <summary>
+            First source to define a key wins; later sources are ignored.
+            </summary>
+        </member>
+        <member name="F:dotnet_config_kit.Internal.MergeStrategy.Merge">
+            <summary>
+            Merge all sources; if a key exists in multiple sources, an exception is thrown.
+            </summary>
+        </member>
+        <member name="F:dotnet_config_kit.Internal.MergeStrategy.Throw">
+            <summary>
+            Throw an exception if any key appears in multiple sources.
+            </summary>
+        </member>
+        <member name="T:dotnet_config_kit.Internal.ConfigurationMerger">
+            <summary>
+            Merger for combining configuration from multiple sources.
+            </summary>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigurationMerger.Merge(System.Collections.Generic.IEnumerable{System.Collections.Generic.IReadOnlyDictionary{System.String,System.String}})">
+            <summary>
+            Merges multiple configuration dictionaries according to the merge strategy.
+            </summary>
+            <param name="sources">The configuration sources to merge.</param>
+            <returns>The merged configuration dictionary.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when merge conflicts are detected with Throw or Merge strategies.</exception>
         </member>
         <member name="T:dotnet_config_kit.Internal.ConfigurationProfile">
             <summary>
@@ -544,6 +632,26 @@
             Auto-detect profile from environment variable.
             Common variable names: ASPNETCORE_ENVIRONMENT, ENVIRONMENT, DOTNET_ENVIRONMENT
             </summary>
+        </member>
+        <member name="T:dotnet_config_kit.Internal.ConfigurationSerializer">
+            <summary>
+            Serializes flat configuration to various formats.
+            </summary>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigurationSerializer.ExportAsJson(System.Collections.Generic.IReadOnlyDictionary{System.String,System.String},System.Boolean)">
+            <summary>
+            Exports configuration as JSON format.
+            </summary>
+            <param name="configuration">The flat configuration dictionary.</param>
+            <param name="indent">Whether to format with indentation for readability.</param>
+            <returns>JSON string representation.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigurationSerializer.ExportAsYaml(System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})">
+            <summary>
+            Exports configuration as YAML format.
+            </summary>
+            <param name="configuration">The flat configuration dictionary.</param>
+            <returns>YAML string representation.</returns>
         </member>
         <member name="T:dotnet_config_kit.Internal.Parsers.IniConfigParser">
             <summary>
@@ -719,6 +827,40 @@
         <member name="M:dotnet_config_kit.Internal.Sources.HotReloadFileSource.Dispose">
             <inheritdoc />
         </member>
+        <member name="T:dotnet_config_kit.Internal.Sources.HttpConfigSource">
+            <summary>
+            Loads configuration from a remote HTTP endpoint.
+            Supports optional polling for automatic updates.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.Sources.HttpConfigSource.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.HttpConfigSource.#ctor(System.Uri,dotnet_config_kit.Abstractions.IConfigParser,System.Nullable{System.Int32},System.Net.Http.HttpClient)">
+            <summary>
+            Creates a new HTTP configuration source.
+            </summary>
+            <param name="endpoint">The HTTP endpoint URL. Must not be null and must be HTTP or HTTPS.</param>
+            <param name="parser">The parser for the response format. Must not be null.</param>
+            <param name="pollIntervalSeconds">Optional polling interval in seconds. If set, configuration is reloaded periodically.</param>
+            <param name="httpClient">Optional custom HttpClient. If null, a new one is created.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when endpoint or parser is null.</exception>
+            <exception cref="T:System.ArgumentException">Thrown when endpoint is not HTTP/HTTPS or pollInterval is less than or equal to 0.</exception>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.HttpConfigSource.Load">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.HttpConfigSource.LoadAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.HttpConfigSource.StartPolling(System.Func{System.Collections.Generic.IReadOnlyDictionary{System.String,System.String},System.Threading.CancellationToken,System.Threading.Tasks.ValueTask})">
+            <summary>
+            Starts polling for configuration updates if polling is enabled.
+            </summary>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.HttpConfigSource.Dispose">
+            <inheritdoc />
+        </member>
         <member name="T:dotnet_config_kit.Internal.Sources.MemoryConfigSource">
             <summary>
             Loads configuration from an in-memory dictionary.
@@ -768,6 +910,28 @@
             <inheritdoc />
         </member>
         <member name="M:dotnet_config_kit.Internal.Sources.UserSecretsConfigSource.LoadAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:dotnet_config_kit.Internal.LazyConfigSource">
+            <summary>
+            Wrapper for lazy-loading configuration sources.
+            Defers loading until first access.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.LazyConfigSource.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.LazyConfigSource.#ctor(dotnet_config_kit.Abstractions.IConfigSource,System.Nullable{System.Int32})">
+            <summary>
+            Creates a new lazy config source.
+            </summary>
+            <param name="innerSource">The underlying source to lazily load.</param>
+            <param name="timeoutSeconds">Optional timeout for load operations in seconds.</param>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.LazyConfigSource.Load">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.LazyConfigSource.LoadAsync(System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
     </members>

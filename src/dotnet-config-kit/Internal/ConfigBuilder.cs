@@ -10,6 +10,7 @@ internal sealed class ConfigBuilder : IConfigBuilder
 {
     private readonly List<IConfigSource> _sources = new();
     private readonly ConfigurationProfile _profile = new();
+    private MergeStrategy _mergeStrategy = MergeStrategy.LastWins;
     private IReadOnlyDictionary<string, string> _configuration = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
     /// <inheritdoc />
@@ -26,6 +27,14 @@ internal sealed class ConfigBuilder : IConfigBuilder
         ArgumentNullException.ThrowIfNull(source, nameof(source));
         _sources.Add(source);
         return this;
+    }
+
+    /// <summary>
+    /// Sets the merge strategy for combining sources.
+    /// </summary>
+    internal void SetMergeStrategy(MergeStrategy strategy)
+    {
+        _mergeStrategy = strategy;
     }
 
     /// <summary>
@@ -52,7 +61,8 @@ internal sealed class ConfigBuilder : IConfigBuilder
     /// <inheritdoc />
     public IConfigBuilder Load()
     {
-        var merged = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var sourceConfigs = new List<IReadOnlyDictionary<string, string>>();
+        var merger = new ConfigurationMerger(_mergeStrategy);
 
         foreach (var source in _sources)
         {
@@ -61,10 +71,7 @@ internal sealed class ConfigBuilder : IConfigBuilder
                 var sourceConfig = source.Load();
                 if (sourceConfig != null && sourceConfig.Count > 0)
                 {
-                    foreach (var kvp in sourceConfig)
-                    {
-                        merged[kvp.Key] = kvp.Value;
-                    }
+                    sourceConfigs.Add(sourceConfig);
                 }
             }
             catch (Exception ex)
@@ -73,14 +80,15 @@ internal sealed class ConfigBuilder : IConfigBuilder
             }
         }
 
-        _configuration = merged;
+        _configuration = merger.Merge(sourceConfigs);
         return this;
     }
 
     /// <inheritdoc />
     public async ValueTask<IConfigBuilder> LoadAsync(CancellationToken cancellationToken = default)
     {
-        var merged = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var sourceConfigs = new List<IReadOnlyDictionary<string, string>>();
+        var merger = new ConfigurationMerger(_mergeStrategy);
 
         foreach (var source in _sources)
         {
@@ -89,10 +97,7 @@ internal sealed class ConfigBuilder : IConfigBuilder
                 var sourceConfig = await source.LoadAsync(cancellationToken).ConfigureAwait(false);
                 if (sourceConfig != null && sourceConfig.Count > 0)
                 {
-                    foreach (var kvp in sourceConfig)
-                    {
-                        merged[kvp.Key] = kvp.Value;
-                    }
+                    sourceConfigs.Add(sourceConfig);
                 }
             }
             catch (OperationCanceledException)
@@ -105,7 +110,7 @@ internal sealed class ConfigBuilder : IConfigBuilder
             }
         }
 
-        _configuration = merged;
+        _configuration = merger.Merge(sourceConfigs);
         return this;
     }
 }

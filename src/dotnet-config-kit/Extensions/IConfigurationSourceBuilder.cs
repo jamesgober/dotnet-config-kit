@@ -83,11 +83,41 @@ public interface IConfigurationSourceBuilder
     IConfigurationSourceBuilder WithAutoProfile();
 
     /// <summary>
-    /// Adds an environment variable source with optional prefix filtering.
+    /// Adds an HTTP configuration source with optional polling.
     /// </summary>
-    /// <param name="prefix">Optional prefix for filtering environment variables. Variables must start with prefix + underscore to be included.</param>
+    /// <param name="endpoint">The HTTP endpoint URL. Must be HTTP or HTTPS.</param>
+    /// <param name="parser">The parser for the response format (JSON, YAML, etc.).</param>
+    /// <param name="pollIntervalSeconds">Optional polling interval in seconds. If set, configuration is reloaded periodically.</param>
     /// <returns>Self for method chaining.</returns>
-    IConfigurationSourceBuilder AddEnvironmentVariables(string? prefix = null);
+    IConfigurationSourceBuilder AddHttpSource(Uri endpoint, Abstractions.IConfigParser parser, int? pollIntervalSeconds = null);
+
+    /// <summary>
+    /// Sets the merge strategy for combining multiple sources.
+    /// </summary>
+    /// <param name="strategy">The merge strategy to use.</param>
+    /// <returns>Self for method chaining.</returns>
+    IConfigurationSourceBuilder WithMergeStrategy(Internal.MergeStrategy strategy);
+
+    /// <summary>
+    /// Wraps a source with lazy loading (deferred until first access).
+    /// </summary>
+    /// <param name="source">The source to wrap.</param>
+    /// <param name="timeoutSeconds">Optional timeout in seconds.</param>
+    /// <returns>Self for method chaining.</returns>
+    IConfigurationSourceBuilder AddLazySource(Abstractions.IConfigSource source, int? timeoutSeconds = null);
+
+    /// <summary>
+    /// Exports the current configuration to JSON format.
+    /// </summary>
+    /// <param name="indent">Whether to format with indentation.</param>
+    /// <returns>JSON string representation of the configuration.</returns>
+    string ExportAsJson(bool indent = true);
+
+    /// <summary>
+    /// Exports the current configuration to YAML format.
+    /// </summary>
+    /// <returns>YAML string representation of the configuration.</returns>
+    string ExportAsYaml();
 
     /// <summary>
     /// Adds an in-memory configuration source.

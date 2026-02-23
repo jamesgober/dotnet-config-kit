@@ -20,12 +20,16 @@ A high-performance, multi-source configuration library for .NET. Supports JSON, 
 ## Features
 
 - **Multiple Formats** — JSON, YAML, TOML, INI, XML with automatic format detection
-- **Multi-Source Loading** — Environment variables, command-line arguments, user secrets, in-memory dictionaries, files, and custom sources with override priority by registration order
+- **Multi-Source Loading** — Environment variables, command-line arguments, user secrets, in-memory dictionaries, files, HTTP endpoints, and custom sources with override priority by registration order
 - **Strongly-Typed Binding** — Bind flat configuration to POCO classes with nested object and collection support
 - **Validation** — Type checking, DataAnnotations support, and error reporting during binding with clear paths to configuration errors
 - **Custom Type Converters** — Extend type conversion for custom types (Uri, IPAddress, etc.)
 - **Configuration Profiles** — Environment-specific settings (development, staging, production) with auto-detection
+- **Merging Strategies** — Control how multiple sources combine: last-wins, first-wins, merge, or strict
 - **Hot-Reload** — FileSystemWatcher integration for automatic configuration reloading with change notifications
+- **Remote Configuration** — Load configuration from HTTP endpoints with optional polling for cloud-native architectures
+- **Configuration Export** — Serialize configuration to JSON or YAML for debugging and auditing
+- **Lazy Loading** — Defer source initialization until first access with optional timeouts for performance optimization
 - **Async-First Design** — Async load paths with `ValueTask<T>` for performance; sync paths also available
 - **Zero-Copy Reads** — Configuration cached after loading; reads are lock-free and allocation-free
 - **Extensible** — Custom sources and parsers via simple interfaces
@@ -296,3 +300,70 @@ hotReload.OnChange(newConfig =>
 {
     Console.WriteLine("Configuration reloaded!");
 });
+```
+
+### Remote Configuration
+
+Load configuration from HTTP endpoints with optional automatic polling:
+
+```csharp
+services
+    .AddConfiguration()
+    .AddJsonFile("appsettings.json")
+    // Load from remote server, polling every 60 seconds
+    .AddHttpSource(
+        new Uri("https://config.example.com/api/settings"),
+        new JsonConfigParser(),
+        pollIntervalSeconds: 60)
+    .Build<AppSettings>();
+```
+
+### Merging Strategies
+
+Control how multiple sources are combined:
+
+```csharp
+services
+    .AddConfiguration()
+    .WithMergeStrategy(MergeStrategy.FirstWins)  // First source wins
+    .AddJsonFile("defaults.json")
+    .AddJsonFile("overrides.json")
+    .Build<AppSettings>();
+```
+
+Available strategies:
+- `LastWins` (default) — Later sources override earlier ones
+- `FirstWins` — First source to define a key wins
+- `Merge` — Combine all sources; error on conflicts with different values
+- `Throw` — Error if any key appears in multiple sources
+
+### Lazy Configuration Loading
+
+Defer source loading until first access for improved startup performance:
+
+```csharp
+services
+    .AddConfiguration()
+    .AddJsonFile("appsettings.json")
+    // Lazy-load from HTTP with 30-second timeout
+    .AddLazySource(
+        new HttpConfigSource(new Uri("https://config.example.com/settings"), new JsonConfigParser()),
+        timeoutSeconds: 30)
+    .Build<AppSettings>();
+```
+
+### Configuration Export
+
+Export loaded configuration to JSON or YAML for debugging:
+
+```csharp
+var configBuilder = services.AddConfiguration()
+    .AddJsonFile("appsettings.json")
+    .AddEnvironmentVariables("MYAPP");
+
+// Export for inspection
+var jsonConfig = configBuilder.ExportAsJson(indent: true);
+var yamlConfig = configBuilder.ExportAsYaml();
+
+Console.WriteLine(jsonConfig);
+File.WriteAllText("exported-config.json", jsonConfig);
