@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("dotnet-config-kit.Benchmarks")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+afae670d8e17507a20513b1d9e98b426547ac38a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+94f1d0a633338d410acafd13ec63591d49d06315")]
 [assembly: System.Reflection.AssemblyProductAttribute("dotnet-config-kit.Benchmarks")]
 [assembly: System.Reflection.AssemblyTitleAttribute("dotnet-config-kit.Benchmarks")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

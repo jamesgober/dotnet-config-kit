@@ -1,19 +1,19 @@
-<div align="center">
-    <img width="120px" height="auto" src="https://raw.githubusercontent.com/jamesgober/jamesgober/main/media/icons/hexagon-3.svg" alt="Triple Hexagon">
-    <h1>
-        <strong>dotnet-config-kit</strong>
-        <sup><br><sub>CONFIGURATION MANAGEMENT</sub></sup>
-    </h1>
-    <div>
-        <a href="https://www.nuget.org/packages/JG.ConfigKit"><img alt="NuGet" src="https://img.shields.io/nuget/v/JG.ConfigKit"></a>
-        <span>&nbsp;</span>
-        <a href="https://www.nuget.org/packages/JG.ConfigKit"><img alt="NuGet Downloads" src="https://img.shields.io/nuget/dt/JG.ConfigKit?color=%230099ff"></a>
-        <span>&nbsp;</span>
-        <a href="./LICENSE" title="License"><img alt="License" src="https://img.shields.io/badge/license-Apache--2.0-blue.svg"></a>
-        <span>&nbsp;</span>
-        <a href="https://github.com/jamesgober/dotnet-config-kit/actions"><img alt="GitHub CI" src="https://github.com/jamesgober/dotnet-config-kit/actions/workflows/ci.yml/badge.svg"></a>
-    </div>
-</div>
+# dotnet-config-kit
+
+[![NuGet](https://img.shields.io/nuget/v/JG.ConfigKit?logo=nuget)](https://www.nuget.org/packages/JG.ConfigKit)
+[![Downloads](https://img.shields.io/nuget/dt/JG.ConfigKit?color=%230099ff&logo=nuget)](https://www.nuget.org/packages/JG.ConfigKit)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](./LICENSE)
+[![CI](https://github.com/jamesgober/dotnet-config-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/jamesgober/dotnet-config-kit/actions)
+
+---
+
+## Quick Links
+
+[![Install NuGet](https://img.shields.io/badge/install-nuget-green?logo=nuget&style=for-the-badge)](https://www.nuget.org/packages/JG.ConfigKit/1.0.0)
+[![Get Started](https://img.shields.io/badge/get%20started-docs-blue?style=for-the-badge)](./docs/GETTING_STARTED.md)
+[![View on GitHub](https://img.shields.io/badge/view%20on-github-black?logo=github&style=for-the-badge)](https://github.com/jamesgober/dotnet-config-kit)
+
+---
 
 A high-performance, multi-source configuration library for .NET. Supports JSON, YAML, TOML, INI, XML, environment variables, command-line arguments, user secrets, and custom sources. Binds to strongly-typed options with DataAnnotations validation, custom type converters, configuration profiles, hot-reload capability, zero-copy reads, and optional hot-reload. Built for production: fast, reliable, and secure.
 
@@ -432,3 +432,26 @@ services
     .UsePreset(builder.CurrentProfile ?? "dev")  // Load preset matching profile
     .AddJsonFile($"appsettings.{profile}.json", isOptional: true)
     .Build<AppSettings>();
+```
+
+---
+
+## Documentation
+
+For more information, see:
+
+- **[Getting Started Guide](./docs/GETTING_STARTED.md)** — Quick start and common patterns
+- **[API Reference](./docs/API.md)** — Complete API documentation
+- **[Advanced Usage](./docs/ADVANCED.md)** — Complex scenarios and best practices
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+Licensed under the Apache License 2.0. See [LICENSE](./LICENSE) for details.
+
+---
+
+**Ready to get started?** Install via NuGet and check out the [getting started guide](./docs/GETTING_STARTED.md).

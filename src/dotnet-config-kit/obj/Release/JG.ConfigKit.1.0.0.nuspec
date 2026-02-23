@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>JG.ConfigKit</id>
+    <version>1.0.0</version>
+    <authors>James Gober</authors>
+    <license type="expression">Apache-2.0</license>
+    <licenseUrl>https://licenses.nuget.org/Apache-2.0</licenseUrl>
+    <readme>README.md</readme>
+    <projectUrl>https://github.com/jamesgober/dotnet-config-kit</projectUrl>
+    <description>High-performance, production-ready multi-source configuration management library for .NET. Supports JSON, YAML, TOML, INI, XML, environment variables, command-line arguments, user secrets, HTTP endpoints, and custom sources with strongly-typed binding, validation, hot-reload, and flexible merging strategies.</description>
+    <tags>configuration config json yaml toml ini xml options binding dotnet multi-source validation hot-reload</tags>
+    <repository type="git" url="https://github.com/jamesgober/dotnet-config-kit" commit="94f1d0a633338d410acafd13ec63591d49d06315" />
+    <dependencies>
+      <group targetFramework="net8.0">
+        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="8.0.0" exclude="Build,Analyzers" />
+        <dependency id="Tomlyn" version="0.16.2" exclude="Build,Analyzers" />
+        <dependency id="YamlDotNet" version="13.7.1" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\bin\Release\net8.0\dotnet-config-kit.dll" target="lib\net8.0\dotnet-config-kit.dll" />
+    <file src="C:\Dev\libs\dotnet\dotnet-config-kit\src\dotnet-config-kit\bin\Release\net8.0\dotnet-config-kit.xml" target="lib\net8.0\dotnet-config-kit.xml" />
+    <file src="C:\Dev\libs\dotnet\dotnet-config-kit\README.md" target="\README.md" />
+  </files>
+</package>
