@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-03-01
+
+### Added
+- Command-line arguments source with support for `--key=value`, `--key value`, and `-k value` formats
+- User secrets source with `UserSecretsIdAttribute` integration
+- Custom type converters via `IConfigValueConverter<T>` interface for extensible type conversion
+- DataAnnotations validation support with `[Required]`, `[Range]`, `[EmailAddress]`, etc.
+- Configuration profiles for environment-specific settings (development, staging, production)
+- `WithProfile()` and `WithAutoProfile()` extension methods for profile management
+- Automatic profile detection from `ASPNETCORE_ENVIRONMENT`, `ENVIRONMENT`, or `DOTNET_ENVIRONMENT` variables
+- `EnhancedReflectionConfigBinder<T>` with full validation attribute support
+- `.RegisterConverter<T>()` method for custom type conversion
+
 ## [0.2.0] - 2026-02-23
 
 ### Added
@@ -37,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Performance benchmarks using BenchmarkDotNet
 - Full XML documentation on all public APIs
 
-[Unreleased]: https://github.com/jamesgober/dotnet-config-kit/compare/0.2.0...HEAD
+[Unreleased]: https://github.com/jamesgober/dotnet-config-kit/compare/0.3.0...HEAD
+[0.3.0]: https://github.com/jamesgober/dotnet-config-kit/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/jamesgober/dotnet-config-kit/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/jamesgober/dotnet-config-kit/releases/tag/0.1.0

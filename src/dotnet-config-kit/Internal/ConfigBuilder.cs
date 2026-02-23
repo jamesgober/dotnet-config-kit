@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 internal sealed class ConfigBuilder : IConfigBuilder
 {
     private readonly List<IConfigSource> _sources = new();
+    private readonly ConfigurationProfile _profile = new();
     private IReadOnlyDictionary<string, string> _configuration = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
     /// <inheritdoc />
@@ -26,6 +27,27 @@ internal sealed class ConfigBuilder : IConfigBuilder
         _sources.Add(source);
         return this;
     }
+
+    /// <summary>
+    /// Sets the active configuration profile.
+    /// </summary>
+    internal void SetProfile(string? profile)
+    {
+        _profile.SetProfile(profile);
+    }
+
+    /// <summary>
+    /// Auto-detects the configuration profile from environment variables.
+    /// </summary>
+    internal void AutoDetectProfile()
+    {
+        _profile.AutoDetectProfile();
+    }
+
+    /// <summary>
+    /// Gets the current profile.
+    /// </summary>
+    internal string? CurrentProfile => _profile.CurrentProfile;
 
     /// <inheritdoc />
     public IConfigBuilder Load()

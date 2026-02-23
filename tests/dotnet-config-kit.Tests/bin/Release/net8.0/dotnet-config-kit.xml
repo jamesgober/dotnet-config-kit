@@ -225,6 +225,25 @@
             Timeout calls that may hang indefinitely (e.g., remote sources). Maximum wait is source-dependent.
             </remarks>
         </member>
+        <member name="T:dotnet_config_kit.Abstractions.IConfigValueConverter`1">
+            <summary>
+            Contract for converting configuration string values to strongly-typed values.
+            </summary>
+            <typeparam name="T">The target type to convert to.</typeparam>
+        </member>
+        <member name="M:dotnet_config_kit.Abstractions.IConfigValueConverter`1.Convert(System.String)">
+            <summary>
+            Converts a string value to the target type.
+            </summary>
+            <param name="value">The string value to convert. May be null or empty.</param>
+            <returns>The converted value.</returns>
+            <exception cref="T:System.ArgumentException">Thrown when the value cannot be converted.</exception>
+        </member>
+        <member name="P:dotnet_config_kit.Abstractions.IConfigValueConverter`1.TargetType">
+            <summary>
+            Gets the type this converter handles.
+            </summary>
+        </member>
         <member name="T:dotnet_config_kit.Extensions.ConfigurationServiceCollectionExtensions">
             <summary>
             Extension methods for registering configuration services with dependency injection.
@@ -275,6 +294,21 @@
             <inheritdoc />
         </member>
         <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddMemory(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}},System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddCommandLineArguments(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddUserSecrets``1">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddUserSecrets(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.WithProfile(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.WithAutoProfile">
             <inheritdoc />
         </member>
         <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddSource(dotnet_config_kit.Abstractions.IConfigSource)">
@@ -331,6 +365,41 @@
             <param name="enableHotReload">Whether to watch for file changes and reload.</param>
             <returns>Self for method chaining.</returns>
         </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddCommandLineArguments(System.String[])">
+            <summary>
+            Adds a command-line arguments source.
+            </summary>
+            <param name="args">Command-line arguments from Main(). Must not be null.</param>
+            <returns>Self for method chaining.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddUserSecrets``1">
+            <summary>
+            Adds a user secrets source.
+            </summary>
+            <typeparam name="T">The assembly type to scan for UserSecretsIdAttribute.</typeparam>
+            <returns>Self for method chaining.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddUserSecrets(System.String)">
+            <summary>
+            Adds a user secrets source with explicit UserSecretsId.
+            </summary>
+            <param name="userSecretsId">The UserSecretsId. Must not be null or empty.</param>
+            <returns>Self for method chaining.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.WithProfile(System.String)">
+            <summary>
+            Sets the configuration profile for environment-specific settings.
+            </summary>
+            <param name="profile">The profile name (e.g., "development", "production").</param>
+            <returns>Self for method chaining.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.WithAutoProfile">
+            <summary>
+            Auto-detects the configuration profile from environment variables.
+            Checks: ASPNETCORE_ENVIRONMENT, ENVIRONMENT, DOTNET_ENVIRONMENT
+            </summary>
+            <returns>Self for method chaining.</returns>
+        </member>
         <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddEnvironmentVariables(System.String)">
             <summary>
             Adds an environment variable source with optional prefix filtering.
@@ -370,6 +439,28 @@
             <param name="cancellationToken">Cancellation token for the async operation.</param>
             <returns>A task that returns the fully configured service collection.</returns>
         </member>
+        <member name="T:dotnet_config_kit.Internal.Binding.EnhancedReflectionConfigBinder`1">
+            <summary>
+            Enhanced reflection-based configuration binder with custom converters and validation attributes.
+            </summary>
+            <typeparam name="T">The target type to bind configuration to.</typeparam>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Binding.EnhancedReflectionConfigBinder`1.RegisterConverter``1(dotnet_config_kit.Abstractions.IConfigValueConverter{``0})">
+            <summary>
+            Registers a custom type converter.
+            </summary>
+            <typeparam name="TValue">The type to convert to.</typeparam>
+            <param name="converter">The converter implementation.</param>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Binding.EnhancedReflectionConfigBinder`1.Bind(System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Binding.EnhancedReflectionConfigBinder`1.BindAsync(System.Collections.Generic.IReadOnlyDictionary{System.String,System.String},System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Binding.EnhancedReflectionConfigBinder`1.GetValidationErrors(System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})">
+            <inheritdoc />
+        </member>
         <member name="T:dotnet_config_kit.Internal.Binding.ReflectionConfigBinder`1">
             <summary>
             Binds flat configuration to strongly-typed objects using reflection.
@@ -401,11 +492,58 @@
             <returns>Self for method chaining.</returns>
             <exception cref="T:System.ArgumentNullException">Thrown when <paramref name="source"/> is null.</exception>
         </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigBuilder.SetProfile(System.String)">
+            <summary>
+            Sets the active configuration profile.
+            </summary>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigBuilder.AutoDetectProfile">
+            <summary>
+            Auto-detects the configuration profile from environment variables.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.ConfigBuilder.CurrentProfile">
+            <summary>
+            Gets the current profile.
+            </summary>
+        </member>
         <member name="M:dotnet_config_kit.Internal.ConfigBuilder.Load">
             <inheritdoc />
         </member>
         <member name="M:dotnet_config_kit.Internal.ConfigBuilder.LoadAsync(System.Threading.CancellationToken)">
             <inheritdoc />
+        </member>
+        <member name="T:dotnet_config_kit.Internal.ConfigurationProfile">
+            <summary>
+            Manages configuration profiles for environment-specific settings.
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.ConfigurationProfile.CurrentProfile">
+            <summary>
+            Gets the current active profile.
+            </summary>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigurationProfile.SetProfile(System.String)">
+            <summary>
+            Sets the active profile.
+            </summary>
+            <param name="profile">The profile name (e.g., "development", "production"). Can be null.</param>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigurationProfile.GetProfileFileName(System.String)">
+            <summary>
+            Gets the profile-specific filename for a base filename.
+            </summary>
+            <param name="baseFileName">The base filename (e.g., "appsettings.json").</param>
+            <returns>
+            If profile is set: "appsettings.{profile}.json"
+            If profile is null: original filename
+            </returns>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigurationProfile.AutoDetectProfile">
+            <summary>
+            Auto-detect profile from environment variable.
+            Common variable names: ASPNETCORE_ENVIRONMENT, ENVIRONMENT, DOTNET_ENVIRONMENT
+            </summary>
         </member>
         <member name="T:dotnet_config_kit.Internal.Parsers.IniConfigParser">
             <summary>
@@ -475,6 +613,28 @@
             <inheritdoc />
         </member>
         <member name="M:dotnet_config_kit.Internal.Parsers.YamlConfigParser.ParseAsync(System.IO.Stream,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:dotnet_config_kit.Internal.Sources.CommandLineConfigSource">
+            <summary>
+            Loads configuration from command-line arguments.
+            Supports formats: --key=value, --key value, -k value
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.Sources.CommandLineConfigSource.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.CommandLineConfigSource.#ctor(System.String[])">
+            <summary>
+            Creates a new command-line configuration source.
+            </summary>
+            <param name="args">Command-line arguments from Main(). Must not be null.</param>
+            <exception cref="T:System.ArgumentNullException">Thrown when args is null.</exception>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.CommandLineConfigSource.Load">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.CommandLineConfigSource.LoadAsync(System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
         <member name="T:dotnet_config_kit.Internal.Sources.EnvironmentVariableConfigSource">
@@ -579,6 +739,35 @@
             <inheritdoc />
         </member>
         <member name="M:dotnet_config_kit.Internal.Sources.MemoryConfigSource.LoadAsync(System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:dotnet_config_kit.Internal.Sources.UserSecretsConfigSource">
+            <summary>
+            Loads configuration from .NET user secrets.
+            Stores in: ~/.microsoft/usersecrets/{UserSecretsId}/secrets.json
+            </summary>
+        </member>
+        <member name="P:dotnet_config_kit.Internal.Sources.UserSecretsConfigSource.Name">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.UserSecretsConfigSource.FromAssembly``1">
+            <summary>
+            Creates a new user secrets source using the app's UserSecretsId.
+            </summary>
+            <typeparam name="T">The assembly type to scan for UserSecretsIdAttribute.</typeparam>
+            <exception cref="T:System.InvalidOperationException">Thrown when UserSecretsIdAttribute is not found.</exception>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.UserSecretsConfigSource.#ctor(System.String)">
+            <summary>
+            Creates a new user secrets source with an explicit UserSecretsId.
+            </summary>
+            <param name="userSecretsId">The UserSecretsId. Must not be null or empty.</param>
+            <exception cref="T:System.ArgumentException">Thrown when userSecretsId is null or empty.</exception>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.UserSecretsConfigSource.Load">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Internal.Sources.UserSecretsConfigSource.LoadAsync(System.Threading.CancellationToken)">
             <inheritdoc />
         </member>
     </members>

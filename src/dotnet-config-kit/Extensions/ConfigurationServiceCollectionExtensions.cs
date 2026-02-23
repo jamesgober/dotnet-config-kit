@@ -174,6 +174,43 @@ internal sealed class ConfigurationSourceBuilder : IConfigurationSourceBuilder
     }
 
     /// <inheritdoc />
+    public IConfigurationSourceBuilder AddCommandLineArguments(string[] args)
+    {
+        ArgumentNullException.ThrowIfNull(args, nameof(args));
+        _configBuilder.AddSource(new CommandLineConfigSource(args));
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IConfigurationSourceBuilder AddUserSecrets<T>() where T : class
+    {
+        _configBuilder.AddSource(UserSecretsConfigSource.FromAssembly<T>());
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IConfigurationSourceBuilder AddUserSecrets(string userSecretsId)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(userSecretsId, nameof(userSecretsId));
+        _configBuilder.AddSource(new UserSecretsConfigSource(userSecretsId));
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IConfigurationSourceBuilder WithProfile(string? profile)
+    {
+        _configBuilder.SetProfile(profile);
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IConfigurationSourceBuilder WithAutoProfile()
+    {
+        _configBuilder.AutoDetectProfile();
+        return this;
+    }
+
+    /// <inheritdoc />
     public IConfigurationSourceBuilder AddSource(IConfigSource source)
     {
         ArgumentNullException.ThrowIfNull(source, nameof(source));
