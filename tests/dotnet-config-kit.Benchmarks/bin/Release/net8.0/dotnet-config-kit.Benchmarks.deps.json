@@ -9,8 +9,8 @@
       "dotnet-config-kit.Benchmarks/1.0.0": {
         "dependencies": {
           "BenchmarkDotNet": "0.13.2",
-          "JG.ConfigKit": "1.0.0",
-          "dotnet-config-kit": "1.0.0.0"
+          "JG.ConfigKit": "1.0.2",
+          "dotnet-config-kit": "1.0.2.0"
         },
         "runtime": {
           "dotnet-config-kit.Benchmarks.dll": {}
@@ -357,7 +357,7 @@
           }
         }
       },
-      "JG.ConfigKit/1.0.0": {
+      "JG.ConfigKit/1.0.2": {
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
           "Tomlyn": "0.16.2",
@@ -365,16 +365,16 @@
         },
         "runtime": {
           "dotnet-config-kit.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+            "assemblyVersion": "1.0.2.0",
+            "fileVersion": "1.0.2.0"
           }
         }
       },
-      "dotnet-config-kit/1.0.0.0": {
+      "dotnet-config-kit/1.0.2.0": {
         "runtime": {
           "dotnet-config-kit.dll": {
-            "assemblyVersion": "1.0.0.0",
-            "fileVersion": "1.0.0.0"
+            "assemblyVersion": "1.0.2.0",
+            "fileVersion": "1.0.2.0"
           }
         }
       }
@@ -554,12 +554,12 @@
       "path": "yamldotnet/13.7.1",
       "hashPath": "yamldotnet.13.7.1.nupkg.sha512"
     },
-    "JG.ConfigKit/1.0.0": {
+    "JG.ConfigKit/1.0.2": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
     },
-    "dotnet-config-kit/1.0.0.0": {
+    "dotnet-config-kit/1.0.2.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

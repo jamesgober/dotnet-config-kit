@@ -595,7 +595,7 @@
           }
         }
       },
-      "JG.ConfigKit/1.0.0": {
+      "JG.ConfigKit/1.0.2": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
@@ -1445,7 +1445,7 @@
         "yamldotnet.nuspec"
       ]
     },
-    "JG.ConfigKit/1.0.0": {
+    "JG.ConfigKit/1.0.2": {
       "type": "project",
       "path": "../../src/dotnet-config-kit/dotnet-config-kit.csproj",
       "msbuildProject": "../../src/dotnet-config-kit/dotnet-config-kit.csproj"
@@ -1454,7 +1454,7 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "BenchmarkDotNet >= 0.13.2",
-      "JG.ConfigKit >= 1.0.0"
+      "JG.ConfigKit >= 1.0.2"
     ]
   },
   "packageFolders": {

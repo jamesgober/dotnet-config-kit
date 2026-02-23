@@ -12,7 +12,7 @@ A high-performance, multi-source configuration library for .NET. Supports JSON, 
 
 ## Quick Links
 
-[![Install NuGet](https://img.shields.io/badge/install-nuget-green?logo=nuget&style=for-the-badge)](https://www.nuget.org/packages/JG.ConfigKit/1.0.0)
+[![Install NuGet](https://img.shields.io/badge/install-nuget-green?logo=nuget&style=for-the-badge)](https://www.nuget.org/packages/JG.ConfigKit/1.0.2)
 [![Get Started](https://img.shields.io/badge/get%20started-docs-blue?style=for-the-badge)](./docs/GETTING_STARTED.md)
 [![View on GitHub](https://img.shields.io/badge/view%20on-github-black?logo=github&style=for-the-badge)](https://github.com/jamesgober/dotnet-config-kit)
 

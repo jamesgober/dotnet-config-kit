@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-02-23
+
+### Fixed
+- Documentation and README improvements
+
+## [1.0.1] - 2026-02-23
+
+### Fixed
+- Documentation and README improvements
+
 ## [1.0.0] - 2026-02-23
 
 ### Overview
@@ -128,7 +138,9 @@ None — this is the first stable release.
 - Performance benchmarks using BenchmarkDotNet
 - Full XML documentation on all public APIs
 
-[Unreleased]: https://github.com/jamesgober/dotnet-config-kit/compare/1.0.0...HEAD
+[Unreleased]: https://github.com/jamesgober/dotnet-config-kit/compare/1.0.2...HEAD
+[1.0.2]: https://github.com/jamesgober/dotnet-config-kit/compare/1.0.1...1.0.2
+[1.0.1]: https://github.com/jamesgober/dotnet-config-kit/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/jamesgober/dotnet-config-kit/releases/tag/1.0.0
 [0.6.0]: https://github.com/jamesgober/dotnet-config-kit/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/jamesgober/dotnet-config-kit/compare/0.4.0...0.5.0

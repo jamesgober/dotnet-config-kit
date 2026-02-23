@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v8.0": {
-      "dotnet-config-kit/1.0.0": {
+      "dotnet-config-kit/1.0.2": {
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.0",
           "Tomlyn": "0.16.2",
@@ -43,7 +43,7 @@
     }
   },
   "libraries": {
-    "dotnet-config-kit/1.0.0": {
+    "dotnet-config-kit/1.0.2": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

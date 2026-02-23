@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/jamesgober/dotnet-config-kit</projectUrl>
     <description>High-performance, production-ready multi-source configuration management library for .NET. Supports JSON, YAML, TOML, INI, XML, environment variables, command-line arguments, user secrets, HTTP endpoints, and custom sources with strongly-typed binding, validation, hot-reload, and flexible merging strategies.</description>
     <tags>configuration config json yaml toml ini xml options binding dotnet multi-source validation hot-reload</tags>
-    <repository type="git" url="https://github.com/jamesgober/dotnet-config-kit" commit="94f1d0a633338d410acafd13ec63591d49d06315" />
+    <repository type="git" url="https://github.com/jamesgober/dotnet-config-kit" commit="d1668eb7569f91eee72e4cebb10f7106feed1bd8" />
     <dependencies>
       <group targetFramework="net8.0">
         <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="8.0.0" exclude="Build,Analyzers" />

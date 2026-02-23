@@ -15,7 +15,7 @@
 
   <PropertyGroup>
     <PackageId>JG.ConfigKit</PackageId>
-    <Version>1.0.0</Version>
+    <Version>1.0.2</Version>
     <Authors>James Gober</Authors>
     <Description>High-performance, production-ready multi-source configuration management library for .NET. Supports JSON, YAML, TOML, INI, XML, environment variables, command-line arguments, user secrets, HTTP endpoints, and custom sources with strongly-typed binding, validation, hot-reload, and flexible merging strategies.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>

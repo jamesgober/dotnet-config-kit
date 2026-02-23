@@ -1,12 +1,5 @@
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-config-kit.Benchmarks.csproj.AssemblyReference.cache
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-config-kit.Benchmarks.GeneratedMSBuildEditorConfig.editorconfig
-C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-config-kit.Benchmarks.AssemblyInfoInputs.cache
-C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-config-kit.Benchmarks.AssemblyInfo.cs
-C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-config-kit.Benchmarks.csproj.CoreCompileInputs.cache
-C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-config-kit.Benchmarks.sourcelink.json
-C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\TraceReloggerLib.dll
-C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\Dia2Lib.dll
-C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\OSExtensions.dll
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\x86\KernelTraceControl.dll
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\x86\KernelTraceControl.Win61.dll
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\x86\msdia140.dll
@@ -22,6 +15,9 @@ C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Rele
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\arm64\msvcp140.dll
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\arm64\vcruntime140.dll
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\arm64\vcruntime140_1.dll
+C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\TraceReloggerLib.dll
+C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\Dia2Lib.dll
+C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\OSExtensions.dll
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\dotnet-config-kit.Benchmarks.exe
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\dotnet-config-kit.Benchmarks.deps.json
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\dotnet-config-kit.Benchmarks.runtimeconfig.json
@@ -50,6 +46,8 @@ C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Rele
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\Perfolizer.dll
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\System.CodeDom.dll
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\System.Management.dll
+C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\Tomlyn.dll
+C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\YamlDotNet.dll
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\cs\Microsoft.CodeAnalysis.resources.dll
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\de\Microsoft.CodeAnalysis.resources.dll
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\es\Microsoft.CodeAnalysis.resources.dll
@@ -80,11 +78,13 @@ C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Rele
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\dotnet-config-kit.dll
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\dotnet-config-kit.pdb
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\dotnet-config-kit.xml
+C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-config-kit.Benchmarks.AssemblyInfoInputs.cache
+C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-config-kit.Benchmarks.AssemblyInfo.cs
+C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-config-kit.Benchmarks.csproj.CoreCompileInputs.cache
+C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-config-kit.Benchmarks.sourcelink.json
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-c.271E0885.Up2Date
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-config-kit.Benchmarks.dll
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\refint\dotnet-config-kit.Benchmarks.dll
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-config-kit.Benchmarks.pdb
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\dotnet-config-kit.Benchmarks.genruntimeconfig.cache
 C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\obj\Release\net8.0\ref\dotnet-config-kit.Benchmarks.dll
-C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\Tomlyn.dll
-C:\Dev\libs\dotnet\dotnet-config-kit\tests\dotnet-config-kit.Benchmarks\bin\Release\net8.0\YamlDotNet.dll
