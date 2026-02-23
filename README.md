@@ -15,16 +15,21 @@
     </div>
 </div>
 
-A high-performance, multi-source configuration library for .NET. Loads from JSON files, environment variables, memory, and custom sources in registration order. Binds to strongly-typed options with validation, zero-copy reads, and optional hot-reload. Built for production: fast, reliable, and secure.
+A high-performance, multi-source configuration library for .NET. Supports JSON, YAML, TOML, INI, XML, environment variables, command-line arguments, user secrets, and custom sources. Binds to strongly-typed options with DataAnnotations validation, custom type converters, configuration profiles, hot-reload capability, zero-copy reads, and optional hot-reload. Built for production: fast, reliable, and secure.
 
 ## Features
 
-- **Multi-Source Loading** — JSON, environment variables, in-memory dictionaries, and custom sources with override priority by registration order
+- **Multiple Formats** — JSON, YAML, TOML, INI, XML with automatic format detection
+- **Multi-Source Loading** — Environment variables, command-line arguments, user secrets, in-memory dictionaries, files, and custom sources with override priority by registration order
 - **Strongly-Typed Binding** — Bind flat configuration to POCO classes with nested object and collection support
-- **Validation** — Type checking and error reporting during binding with clear paths to configuration errors
+- **Validation** — Type checking, DataAnnotations support, and error reporting during binding with clear paths to configuration errors
+- **Custom Type Converters** — Extend type conversion for custom types (Uri, IPAddress, etc.)
+- **Configuration Profiles** — Environment-specific settings (development, staging, production) with auto-detection
+- **Hot-Reload** — FileSystemWatcher integration for automatic configuration reloading with change notifications
 - **Async-First Design** — Async load paths with `ValueTask<T>` for performance; sync paths also available
 - **Zero-Copy Reads** — Configuration cached after loading; reads are lock-free and allocation-free
 - **Extensible** — Custom sources and parsers via simple interfaces
+- **Cross-Platform** — Works on Windows, Linux, and macOS
 
 ## Installation
 
@@ -79,19 +84,29 @@ export MYAPP_PORT=5433
 .AddJsonFile("appsettings.json")
 ```
 
-File format:
-```json
-{
-  "database": {
-    "host": "localhost",
-    "port": 5432,
-    "username": "admin"
-  },
-  "debug": true
-}
+### YAML Files
+
+```csharp
+.AddYamlFile("config.yaml", enableHotReload: true)
 ```
 
-All keys are flattened to dot-notation internally: `database.host`, `database.port`, etc.
+### TOML Files
+
+```csharp
+.AddTomlFile("config.toml")
+```
+
+### INI Files
+
+```csharp
+.AddIniFile("config.ini")
+```
+
+### XML Files
+
+```csharp
+.AddXmlFile("config.xml")
+```
 
 ### Environment Variables
 
@@ -105,6 +120,29 @@ Environment variables with the prefix (followed by underscore) are included. Und
 MYAPP_DATABASE_HOST=localhost      # → database.host
 MYAPP_DEBUG=true                   # → debug
 ```
+
+### Command-Line Arguments
+
+```csharp
+.AddCommandLineArguments(args)
+```
+
+Arguments support three formats:
+
+```bash
+--key=value                        # Direct assignment
+--key value                        # Space-separated
+-k value                           # Short form
+--flag                             # Boolean flags (→ "true")
+```
+
+### User Secrets
+
+```csharp
+.AddUserSecrets<Program>()
+```
+
+Loads from `~/.microsoft/usersecrets/{UserSecretsId}/secrets.json`. Perfect for local development secrets without committing to source control.
 
 ### In-Memory Dictionaries
 
@@ -151,15 +189,17 @@ Configuration is bound to public properties. Supported types:
 - Guid, DateTime, TimeSpan
 - Enums (case-insensitive)
 - Nullable types
+- Custom types with `IConfigValueConverter<T>`
 - Collections (arrays, lists) via array indexing
 
-Example with nested objects:
+### Example with Nested Objects
 
 ```csharp
 public class AppSettings
 {
     public DatabaseSettings Database { get; set; } = new();
     public LogSettings Log { get; set; } = new();
+    public Uri ApiEndpoint { get; set; } = null!;
 }
 
 public class DatabaseSettings
@@ -176,90 +216,83 @@ public class LogSettings
 public enum LogLevel { Debug, Info, Warning, Error }
 ```
 
-Configuration file:
-```json
+### Custom Type Converters
+
+Convert custom types like `Uri`, `IPAddress`, or domain-specific types:
+
+```csharp
+public class UriConverter : IConfigValueConverter<Uri>
 {
-  "database": {
-    "host": "prod.db.example.com",
-    "port": 5433
-  },
-  "log": {
-    "level": "Warning"
-  }
+    public Uri Convert(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            throw new ArgumentException("URI cannot be empty");
+        return new Uri(value);
+    }
+}
+
+// Register
+var binder = new EnhancedReflectionConfigBinder<AppSettings>();
+binder.RegisterConverter<Uri>(new UriConverter());
+```
+
+### Validation with DataAnnotations
+
+Validate configuration using standard .NET attributes:
+
+```csharp
+public class AppSettings
+{
+    [Required(ErrorMessage = "API key is required")]
+    public string? ApiKey { get; set; }
+
+    [Range(1, 65535, ErrorMessage = "Port must be between 1 and 65535")]
+    public int Port { get; set; }
+
+    [EmailAddress(ErrorMessage = "Invalid email format")]
+    public string? AdminEmail { get; set; }
+
+    [Url(ErrorMessage = "Invalid URL format")]
+    public string? ApiUrl { get; set; }
 }
 ```
 
-Binding:
+Validation errors are reported during binding with clear messages and configuration paths.
+
+### Configuration Profiles
+
+Use environment-specific settings:
+
 ```csharp
 services
     .AddConfiguration()
+    .WithAutoProfile()  // Auto-detect from ASPNETCORE_ENVIRONMENT
     .AddJsonFile("appsettings.json")
+    .AddJsonFile("appsettings.{profile}.json")  // development, staging, production
+    .AddEnvironmentVariables("MYAPP")
     .Build<AppSettings>();
 ```
 
-## Error Handling
-
-Binding errors include the configuration path and actual value:
-
-```
-InvalidOperationException: Configuration binding failed with 1 error(s):
-  database.port: Failed to bind to type Int32: Cannot convert 'not_a_number' to int
-```
-
-Use `IConfigBinder<T>.GetValidationErrors()` to check for errors without throwing:
+Or set profile explicitly:
 
 ```csharp
-var binder = serviceProvider.GetRequiredService<IConfigBinder<AppSettings>>();
-var errors = binder.GetValidationErrors(configuration);
+.WithProfile("production")
+```
 
-if (errors.Count > 0)
+### Hot-Reload Capability
+
+Automatically reload configuration when files change:
+
+```csharp
+services
+    .AddConfiguration()
+    .AddJsonFile("config.json", enableHotReload: true)
+    .AddYamlFile("settings.yaml", enableHotReload: true)
+    .Build<AppSettings>();
+
+// Subscribe to changes
+var hotReload = serviceProvider.GetRequiredService<HotReloadFileSource>();
+hotReload.OnChange(newConfig => 
 {
-    foreach (var error in errors)
-    {
-        Console.WriteLine($"{error.Path}: {error.Message}");
-    }
-}
-```
-
-## Performance
-
-Configuration is loaded once during application startup and cached. All subsequent reads are lock-free and allocation-free.
-
-To benchmark your application:
-
-```bash
-dotnet run --project tests/dotnet-config-kit.Benchmarks -c Release
-```
-
-## Architecture
-
-- **`Abstractions/`** — `IConfigParser`, `IConfigSource`, `IConfigBinder<T>`, `IConfigBuilder`
-- **`Internal/`** — Implementation: `ConfigBuilder`, parsers, sources, binders
-- **`Extensions/`** — `AddConfiguration()` and fluent builder API
-
-All internal types are sealed and implementation-hidden. Depend on abstractions.
-
-## Thread Safety
-
-Configuration is immutable after loading. The `IConfigBuilder.Configuration` dictionary is thread-safe for reading.
-
-Custom sources should be thread-safe if they may be called concurrently.
-
-## Supported .NET Versions
-
-- .NET 8.0 and later
-
-## License
-
-Apache 2.0 — See [LICENSE](./LICENSE) for details.
-
----
-
-<!--
-:: COPYRIGHT
-=========================== -->
-<div align="center">
-
-  <h2></h2>
-  <sup>COPYRIGHT <small>&copy;</small> 2026 <strong>JAMES GOBER.</strong></sup>
-</div>
+    Console.WriteLine("Configuration reloaded!");
+});

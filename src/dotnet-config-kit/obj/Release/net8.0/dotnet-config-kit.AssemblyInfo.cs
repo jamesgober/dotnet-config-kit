@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("High-performance multi-format configuration library for .NET.")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("0.1.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0+3e3ed29cdfb6e2d2b707cf9c51fc2e725aa55944")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.1.0+2af93071c1a8b65ed42fb29aa8bf8ea52c2b2e05")]
 [assembly: System.Reflection.AssemblyProductAttribute("dotnet-config-kit")]
 [assembly: System.Reflection.AssemblyTitleAttribute("dotnet-config-kit")]
 [assembly: System.Reflection.AssemblyVersionAttribute("0.1.0.0")]

@@ -18,8 +18,12 @@ Install-Package JG.ConfigKit
 ```csharp
 public class AppConfig
 {
+    [Required(ErrorMessage = "Database URL is required")]
     public string? DatabaseUrl { get; set; }
+    
+    [Range(1, 1000)]
     public int MaxConnections { get; set; } = 10;
+    
     public bool EnableLogging { get; set; } = true;
 }
 ```
@@ -39,12 +43,17 @@ public class AppConfig
 ```csharp
 using Microsoft.Extensions.DependencyInjection;
 using dotnet_config_kit.Extensions;
+using System.ComponentModel.DataAnnotations;
 
 var services = new ServiceCollection();
 
 services
     .AddConfiguration()
+    .WithAutoProfile()
     .AddJsonFile("appsettings.json")
+    .AddJsonFile("appsettings.{profile}.json")
+    .AddEnvironmentVariables("MYAPP")
+    .AddCommandLineArguments(args)
     .Build<AppConfig>();
 
 var provider = services.BuildServiceProvider();
@@ -105,6 +114,21 @@ Environment variables are loaded last, so they override JSON:
 ```bash
 export MYAPP_DATABASEURL="Server=prod-db.com"
 export MYAPP_MAXCONNECTIONS=100
+```
+
+### Command-Line Arguments
+
+```csharp
+services
+    .AddConfiguration()
+    .AddJsonFile("appsettings.json")
+    .AddCommandLineArguments(args)
+    .Build<AppConfig>();
+```
+
+Run with:
+```bash
+dotnet run -- --maxConnections 50 --enableLogging=false
 ```
 
 ### Testing with In-Memory Configuration

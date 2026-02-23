@@ -571,165 +571,192 @@ var settings = binder.Bind(config);
 
 ---
 
-## Configuration Key Formats
+### `IConfigValueConverter<T>` ⭐ NEW in v0.3.0
 
-### Dot Notation (Objects)
-Objects are flattened with dot-separated paths:
-```json
-{
-  "database": {
-    "connection": {
-      "host": "localhost"
-    }
-  }
-}
-```
-Becomes: `database.connection.host` → "localhost"
+**Namespace:** `dotnet_config_kit.Abstractions`
 
-### Colon Notation (Arrays)
-Array indices use colons with nested properties using dots:
-```json
-{
-  "servers": [
-    { "host": "server1.com", "port": 8080 },
-    { "host": "server2.com", "port": 8081 }
-  ]
-}
-```
-Becomes:
-- `servers:0.host` → "server1.com"
-- `servers:0.port` → "8080"
-- `servers:1.host` → "server2.com"
-- `servers:1.port` → "8081"
+Contract for converting configuration string values to strongly-typed values.
 
-### Environment Variables
-Underscores become dots; double underscores also become dots:
-```
-MYAPP_DATABASE_HOST=localhost
-MYAPP_DATABASE__PORT=5432
-MYAPP_DEBUG=true
-```
-Becomes (with prefix "MYAPP"):
-- `database.host` → "localhost"
-- `database.port` → "5432"
-- `debug` → "true"
+**Type Parameters:**
+- `T`: The target type to convert to.
 
----
+#### Members
 
-## Error Handling
-
-### Configuration Not Found
-If a required key is missing during binding, the property uses its CLR default value (null for reference types, 0 for value types).
-
-### Type Conversion Failure
-When a value cannot be converted to the target type, binding throws `InvalidOperationException`:
-```
-InvalidOperationException: Configuration binding failed with 1 error(s):
-  database.port: Failed to bind to type Int32: Cannot convert 'not_a_number' to int
-```
-
-### Validation Without Binding
-To check for errors before binding:
 ```csharp
-var errors = binder.GetValidationErrors(config);
-if (errors.Count > 0)
+T Convert(string? value)
+```
+Converts a string value to the target type.
+
+**Parameters:**
+- `value` (string?): The string value to convert. May be null or empty.
+
+**Returns:** The converted value.
+
+**Exceptions:**
+- `ArgumentException`: Thrown when the value cannot be converted.
+
+**Example:**
+```csharp
+public class UriConverter : IConfigValueConverter<Uri>
 {
-    foreach (var error in errors)
+    public Uri Convert(string? value)
     {
-        Console.WriteLine($"{error.Path}: {error.Message} (value: {error.AttemptedValue})");
+        if (string.IsNullOrEmpty(value))
+            throw new ArgumentException("URI cannot be empty");
+        return new Uri(value);
     }
 }
+
+// Register and use
+var binder = new EnhancedReflectionConfigBinder<AppSettings>();
+binder.RegisterConverter<Uri>(new UriConverter());
+var settings = binder.Bind(config);
 ```
 
 ---
 
-## Thread Safety
+### `EnhancedReflectionConfigBinder<T>` ⭐ NEW in v0.3.0
 
-- **Immutable:** Configuration is locked after loading. Cannot be modified.
-- **Thread-Safe Reads:** Multiple threads can read configuration without locks.
-- **Not Thread-Safe:** Custom sources should be thread-safe if called concurrently.
+**Namespace:** `dotnet_config_kit.Internal.Binding`
 
----
+Enhanced reflection-based binder with custom converters and DataAnnotations validation support.
 
-## Performance Tips
+**Type Parameters:**
+- `T` (class): The target type to bind configuration to.
 
-1. **Load Once:** Configuration is loaded once at startup. Use DI to share the instance.
-2. **Async Loading:** Use `LoadAsync()` for I/O-bound sources (files, network).
-3. **Eager Binding:** Bind at startup to catch errors early. Use `Build<T>()` in `Program.cs`.
-4. **Cache Binders:** Create `IConfigBinder<T>` once, reuse for validation.
-5. **Minimize Sources:** Each source adds load time. Consolidate where possible.
-
----
-
-## Complete Example
+#### Members
 
 ```csharp
-using Microsoft.Extensions.DependencyInjection;
-using dotnet_config_kit;
-using dotnet_config_kit.Extensions;
-
-public class AppSettings
-{
-    public string? AppName { get; set; }
-    public int Port { get; set; } = 8080;
-    public DatabaseSettings Database { get; set; } = new();
-}
-
-public class DatabaseSettings
-{
-    public string? Host { get; set; } = "localhost";
-    public int Port { get; set; } = 5432;
-    public string? Username { get; set; }
-    public string? Password { get; set; }
-}
-
-// Program.cs
-var services = new ServiceCollection();
-
-services
-    .AddConfiguration()
-    .AddJsonFile("appsettings.json")
-    .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ENVIRONMENT")}.json")
-    .AddEnvironmentVariables("MYAPP")
-    .Build<AppSettings>();
-
-var provider = services.BuildServiceProvider();
-var settings = provider.GetRequiredService<AppSettings>();
-
-Console.WriteLine($"App: {settings.AppName}");
-Console.WriteLine($"Port: {settings.Port}");
-Console.WriteLine($"Database: {settings.Database.Host}:{settings.Database.Port}");
+void RegisterConverter<TValue>(IConfigValueConverter<TValue> converter)
 ```
+Registers a custom type converter.
 
-**appsettings.json:**
-```json
-{
-  "appName": "MyApp",
-  "port": 8080,
-  "database": {
-    "host": "localhost",
-    "port": 5432,
-    "username": "sa",
-    "password": "changeme"
-  }
-}
-```
+**Type Parameters:**
+- `TValue`: The type to convert to.
 
-**appsettings.prod.json:**
-```json
-{
-  "database": {
-    "host": "prod-db.example.com",
-    "port": 5433
-  }
-}
-```
+**Parameters:**
+- `converter` (IConfigValueConverter<TValue>): The converter implementation.
 
-**Environment:**
-```bash
-MYAPP_DATABASE_PASSWORD=SecurePassword123
+**Example:**
+```csharp
+var binder = new EnhancedReflectionConfigBinder<AppSettings>();
+binder.RegisterConverter<IPAddress>(s => IPAddress.Parse(s));
+binder.RegisterConverter<Uri>(new UriConverter());
+
+var settings = binder.Bind(config);
+
 ```
 
 ---
 
-Generated for **dotnet-config-kit v0.1.0**
+## New Extension Methods in v0.3.0
+
+Added additional methods to the configuration builder interface for improved functionality.
+
+### Command-Line Arguments
+
+```csharp
+IConfigurationSourceBuilder AddCommandLineArguments(string[] args)
+```
+Adds a command-line arguments source.
+
+**Parameters:**
+- `args` (string[]): Command-line arguments from Main(). Must not be null.
+
+**Returns:** Self for method chaining.
+
+**Remarks:**
+- Supports `--key=value`, `--key value`, and `-k value` formats
+- Flags without values default to "true": `--flag` → `"true"`
+- Later sources override earlier ones (command-line highest priority)
+
+**Example:**
+```csharp
+.AddCommandLineArguments(args)
+// Usage: app --database-host=localhost --port 5432 --debug
+```
+
+---
+
+### User Secrets
+
+```csharp
+IConfigurationSourceBuilder AddUserSecrets<T>() where T : class
+```
+Adds a user secrets source using assembly's UserSecretsIdAttribute.
+
+**Type Parameters:**
+- `T` (class): The assembly type to scan for UserSecretsIdAttribute.
+
+**Returns:** Self for method chaining.
+
+**Exceptions:**
+- `InvalidOperationException`: When UserSecretsIdAttribute is not found.
+
+**Example:**
+```csharp
+// Requires: [assembly: UserSecretsId("my-app-id")]
+.AddUserSecrets<Program>()
+```
+
+---
+
+```csharp
+IConfigurationSourceBuilder AddUserSecrets(string userSecretsId)
+```
+Adds a user secrets source with explicit UserSecretsId.
+
+**Parameters:**
+- `userSecretsId` (string): The UserSecretsId. Must not be null or empty.
+
+**Returns:** Self for method chaining.
+
+**Remarks:** Loads from `~/.microsoft/usersecrets/{userSecretsId}/secrets.json`
+
+**Example:**
+```csharp
+.AddUserSecrets("my-app-id")
+// Searches: ~/.microsoft/usersecrets/my-app-id/secrets.json
+```
+
+---
+
+### Configuration Profile
+
+```csharp
+IConfigurationSourceBuilder WithProfile(string? profile)
+```
+Sets the configuration profile for environment-specific settings.
+
+**Parameters:**
+- `profile` (string?): The profile name (e.g., "development", "production").
+
+**Returns:** Self for method chaining.
+
+**Example:**
+```csharp
+.WithProfile("production")
+.AddJsonFile("appsettings.{profile}.json")
+// Loads: appsettings.production.json
+```
+
+---
+
+```csharp
+IConfigurationSourceBuilder WithAutoProfile()
+```
+Auto-detects the configuration profile from environment variables.
+
+**Checks:**
+- `ASPNETCORE_ENVIRONMENT`
+- `ENVIRONMENT`
+- `DOTNET_ENVIRONMENT`
+
+**Returns:** Self for method chaining.
+
+**Example:**
+```csharp
+.WithAutoProfile()
+// If ASPNETCORE_ENVIRONMENT=production → profile="production"
+.AddJsonFile("appsettings.{profile}.json")
+// Loads: appsettings.production.json
