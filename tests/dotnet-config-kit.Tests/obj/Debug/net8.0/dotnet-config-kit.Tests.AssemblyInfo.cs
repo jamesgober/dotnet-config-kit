@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("dotnet-config-kit.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ea28bc563401958ed88c30f9c2468c69490fccc5")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+afae670d8e17507a20513b1d9e98b426547ac38a")]
 [assembly: System.Reflection.AssemblyProductAttribute("dotnet-config-kit.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("dotnet-config-kit.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
