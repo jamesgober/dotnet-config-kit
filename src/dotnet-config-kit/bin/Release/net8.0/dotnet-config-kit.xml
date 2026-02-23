@@ -265,30 +265,20 @@
         <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddJsonFile(System.String)">
             <inheritdoc />
         </member>
-        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddJsonFile(System.String,System.Boolean)">
-            <summary>
-            Adds a JSON file source with optional hot-reload.
-            </summary>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddJsonFile(System.String,System.Boolean,System.Boolean)">
+            <inheritdoc />
         </member>
-        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddYamlFile(System.String,System.Boolean)">
-            <summary>
-            Adds a YAML file source.
-            </summary>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddYamlFile(System.String,System.Boolean,System.Boolean)">
+            <inheritdoc />
         </member>
-        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddTomlFile(System.String,System.Boolean)">
-            <summary>
-            Adds a TOML file source.
-            </summary>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddTomlFile(System.String,System.Boolean,System.Boolean)">
+            <inheritdoc />
         </member>
-        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddIniFile(System.String,System.Boolean)">
-            <summary>
-            Adds an INI file source.
-            </summary>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddIniFile(System.String,System.Boolean,System.Boolean)">
+            <inheritdoc />
         </member>
-        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddXmlFile(System.String,System.Boolean)">
-            <summary>
-            Adds an XML file source.
-            </summary>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddXmlFile(System.String,System.Boolean,System.Boolean)">
+            <inheritdoc />
         </member>
         <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddEnvironmentVariables(System.String)">
             <inheritdoc />
@@ -329,6 +319,15 @@
         <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddSource(dotnet_config_kit.Abstractions.IConfigSource)">
             <inheritdoc />
         </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.AddDefaults(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}},System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.RegisterPreset(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}})">
+            <inheritdoc />
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.UsePreset(System.String)">
+            <inheritdoc />
+        </member>
         <member name="M:dotnet_config_kit.Extensions.ConfigurationSourceBuilder.Build``1">
             <inheritdoc />
         </member>
@@ -348,36 +347,49 @@
             <returns>Self for method chaining.</returns>
             <exception cref="T:System.ArgumentException">Thrown when filePath is null or empty.</exception>
         </member>
-        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddYamlFile(System.String,System.Boolean)">
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddJsonFile(System.String,System.Boolean,System.Boolean)">
             <summary>
-            Adds a YAML file source with optional hot-reload.
+            Adds a JSON file source with optional hot-reload and optional file handling.
+            </summary>
+            <param name="filePath">The path to the JSON file. Must not be null or empty.</param>
+            <param name="isOptional">Whether to ignore if the file doesn't exist. Default is false.</param>
+            <param name="enableHotReload">Whether to watch for file changes and reload. Default is false.</param>
+            <returns>Self for method chaining.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddYamlFile(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            Adds a YAML file source with optional hot-reload and optional file handling.
             </summary>
             <param name="filePath">The path to the YAML file.</param>
-            <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+            <param name="isOptional">Whether to ignore if the file doesn't exist. Default is false.</param>
+            <param name="enableHotReload">Whether to watch for file changes and reload. Default is false.</param>
             <returns>Self for method chaining.</returns>
         </member>
-        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddTomlFile(System.String,System.Boolean)">
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddTomlFile(System.String,System.Boolean,System.Boolean)">
             <summary>
-            Adds a TOML file source with optional hot-reload.
+            Adds a TOML file source with optional file handling and hot-reload.
             </summary>
             <param name="filePath">The path to the TOML file.</param>
-            <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+            <param name="isOptional">Whether to ignore if the file doesn't exist. Default is false.</param>
+            <param name="enableHotReload">Whether to watch for file changes and reload. Default is false.</param>
             <returns>Self for method chaining.</returns>
         </member>
-        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddIniFile(System.String,System.Boolean)">
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddIniFile(System.String,System.Boolean,System.Boolean)">
             <summary>
-            Adds an INI file source with optional hot-reload.
+            Adds an INI file source with optional file handling and hot-reload.
             </summary>
             <param name="filePath">The path to the INI file.</param>
-            <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+            <param name="isOptional">Whether to ignore if the file doesn't exist. Default is false.</param>
+            <param name="enableHotReload">Whether to watch for file changes and reload. Default is false.</param>
             <returns>Self for method chaining.</returns>
         </member>
-        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddXmlFile(System.String,System.Boolean)">
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddXmlFile(System.String,System.Boolean,System.Boolean)">
             <summary>
-            Adds an XML file source with optional hot-reload.
+            Adds an XML file source with optional file handling and hot-reload.
             </summary>
             <param name="filePath">The path to the XML file.</param>
-            <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+            <param name="isOptional">Whether to ignore if the file doesn't exist. Default is false.</param>
+            <param name="enableHotReload">Whether to watch for file changes and reload. Default is false.</param>
             <returns>Self for method chaining.</returns>
         </member>
         <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddCommandLineArguments(System.String[])">
@@ -483,6 +495,30 @@
             <typeparam name="T">The type to bind configuration to.</typeparam>
             <param name="cancellationToken">Cancellation token for the async operation.</param>
             <returns>A task that returns the fully configured service collection.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.AddDefaults(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}},System.String)">
+            <summary>
+            Adds default configuration values that serve as a fallback.
+            These are applied FIRST, so other sources can override them.
+            </summary>
+            <param name="defaults">The default configuration key-value pairs.</param>
+            <param name="name">Optional name for this defaults source.</param>
+            <returns>Self for method chaining.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.RegisterPreset(System.String,System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{System.String,System.String}})">
+            <summary>
+            Registers a configuration preset for reuse.
+            </summary>
+            <param name="presetName">The name of the preset (e.g., "development", "production").</param>
+            <param name="configuration">The preset configuration.</param>
+            <returns>Self for method chaining.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Extensions.IConfigurationSourceBuilder.UsePreset(System.String)">
+            <summary>
+            Loads a registered preset configuration.
+            </summary>
+            <param name="presetName">The name of the preset to load.</param>
+            <returns>Self for method chaining.</returns>
         </member>
         <member name="T:dotnet_config_kit.Internal.Binding.EnhancedReflectionConfigBinder`1">
             <summary>
@@ -600,6 +636,38 @@
             <param name="sources">The configuration sources to merge.</param>
             <returns>The merged configuration dictionary.</returns>
             <exception cref="T:System.InvalidOperationException">Thrown when merge conflicts are detected with Throw or Merge strategies.</exception>
+        </member>
+        <member name="T:dotnet_config_kit.Internal.ConfigurationPresets">
+            <summary>
+            Manages preset configurations for reuse across multiple configurations.
+            </summary>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigurationPresets.Register(System.String,System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})">
+            <summary>
+            Registers a preset configuration.
+            </summary>
+            <param name="name">The preset name (e.g., "development", "production").</param>
+            <param name="configuration">The preset configuration dictionary.</param>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigurationPresets.Get(System.String)">
+            <summary>
+            Gets a registered preset configuration.
+            </summary>
+            <param name="name">The preset name.</param>
+            <returns>The preset configuration, or empty dictionary if not found.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigurationPresets.Exists(System.String)">
+            <summary>
+            Checks if a preset is registered.
+            </summary>
+            <param name="name">The preset name.</param>
+            <returns>True if the preset exists, false otherwise.</returns>
+        </member>
+        <member name="M:dotnet_config_kit.Internal.ConfigurationPresets.GetNames">
+            <summary>
+            Gets all registered preset names.
+            </summary>
+            <returns>Collection of preset names.</returns>
         </member>
         <member name="T:dotnet_config_kit.Internal.ConfigurationProfile">
             <summary>

@@ -16,36 +16,49 @@ public interface IConfigurationSourceBuilder
     IConfigurationSourceBuilder AddJsonFile(string filePath);
 
     /// <summary>
-    /// Adds a YAML file source with optional hot-reload.
+    /// Adds a JSON file source with optional hot-reload and optional file handling.
+    /// </summary>
+    /// <param name="filePath">The path to the JSON file. Must not be null or empty.</param>
+    /// <param name="isOptional">Whether to ignore if the file doesn't exist. Default is false.</param>
+    /// <param name="enableHotReload">Whether to watch for file changes and reload. Default is false.</param>
+    /// <returns>Self for method chaining.</returns>
+    IConfigurationSourceBuilder AddJsonFile(string filePath, bool isOptional = false, bool enableHotReload = false);
+
+    /// <summary>
+    /// Adds a YAML file source with optional hot-reload and optional file handling.
     /// </summary>
     /// <param name="filePath">The path to the YAML file.</param>
-    /// <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+    /// <param name="isOptional">Whether to ignore if the file doesn't exist. Default is false.</param>
+    /// <param name="enableHotReload">Whether to watch for file changes and reload. Default is false.</param>
     /// <returns>Self for method chaining.</returns>
-    IConfigurationSourceBuilder AddYamlFile(string filePath, bool enableHotReload = false);
+    IConfigurationSourceBuilder AddYamlFile(string filePath, bool isOptional = false, bool enableHotReload = false);
 
     /// <summary>
-    /// Adds a TOML file source with optional hot-reload.
+    /// Adds a TOML file source with optional file handling and hot-reload.
     /// </summary>
     /// <param name="filePath">The path to the TOML file.</param>
-    /// <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+    /// <param name="isOptional">Whether to ignore if the file doesn't exist. Default is false.</param>
+    /// <param name="enableHotReload">Whether to watch for file changes and reload. Default is false.</param>
     /// <returns>Self for method chaining.</returns>
-    IConfigurationSourceBuilder AddTomlFile(string filePath, bool enableHotReload = false);
+    IConfigurationSourceBuilder AddTomlFile(string filePath, bool isOptional = false, bool enableHotReload = false);
 
     /// <summary>
-    /// Adds an INI file source with optional hot-reload.
+    /// Adds an INI file source with optional file handling and hot-reload.
     /// </summary>
     /// <param name="filePath">The path to the INI file.</param>
-    /// <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+    /// <param name="isOptional">Whether to ignore if the file doesn't exist. Default is false.</param>
+    /// <param name="enableHotReload">Whether to watch for file changes and reload. Default is false.</param>
     /// <returns>Self for method chaining.</returns>
-    IConfigurationSourceBuilder AddIniFile(string filePath, bool enableHotReload = false);
+    IConfigurationSourceBuilder AddIniFile(string filePath, bool isOptional = false, bool enableHotReload = false);
 
     /// <summary>
-    /// Adds an XML file source with optional hot-reload.
+    /// Adds an XML file source with optional file handling and hot-reload.
     /// </summary>
     /// <param name="filePath">The path to the XML file.</param>
-    /// <param name="enableHotReload">Whether to watch for file changes and reload.</param>
+    /// <param name="isOptional">Whether to ignore if the file doesn't exist. Default is false.</param>
+    /// <param name="enableHotReload">Whether to watch for file changes and reload. Default is false.</param>
     /// <returns>Self for method chaining.</returns>
-    IConfigurationSourceBuilder AddXmlFile(string filePath, bool enableHotReload = false);
+    IConfigurationSourceBuilder AddXmlFile(string filePath, bool isOptional = false, bool enableHotReload = false);
 
     /// <summary>
     /// Adds a command-line arguments source.
@@ -150,4 +163,28 @@ public interface IConfigurationSourceBuilder
     /// <param name="cancellationToken">Cancellation token for the async operation.</param>
     /// <returns>A task that returns the fully configured service collection.</returns>
     Task<IServiceCollection> BuildAsync<T>(CancellationToken cancellationToken = default) where T : class, new();
+
+    /// <summary>
+    /// Adds default configuration values that serve as a fallback.
+    /// These are applied FIRST, so other sources can override them.
+    /// </summary>
+    /// <param name="defaults">The default configuration key-value pairs.</param>
+    /// <param name="name">Optional name for this defaults source.</param>
+    /// <returns>Self for method chaining.</returns>
+    IConfigurationSourceBuilder AddDefaults(IEnumerable<KeyValuePair<string, string>> defaults, string? name = null);
+
+    /// <summary>
+    /// Registers a configuration preset for reuse.
+    /// </summary>
+    /// <param name="presetName">The name of the preset (e.g., "development", "production").</param>
+    /// <param name="configuration">The preset configuration.</param>
+    /// <returns>Self for method chaining.</returns>
+    IConfigurationSourceBuilder RegisterPreset(string presetName, IEnumerable<KeyValuePair<string, string>> configuration);
+
+    /// <summary>
+    /// Loads a registered preset configuration.
+    /// </summary>
+    /// <param name="presetName">The name of the preset to load.</param>
+    /// <returns>Self for method chaining.</returns>
+    IConfigurationSourceBuilder UsePreset(string presetName);
 }

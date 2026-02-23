@@ -34,6 +34,7 @@ internal sealed class ConfigurationSourceBuilder : IConfigurationSourceBuilder
 {
     private readonly IServiceCollection _services;
     private readonly ConfigBuilder _configBuilder = new();
+    private readonly ConfigurationPresets _presets = new();
 
     internal ConfigurationSourceBuilder(IServiceCollection services)
     {
@@ -48,12 +49,21 @@ internal sealed class ConfigurationSourceBuilder : IConfigurationSourceBuilder
         return this;
     }
 
-    /// <summary>
-    /// Adds a JSON file source with optional hot-reload.
-    /// </summary>
-    public IConfigurationSourceBuilder AddJsonFile(string filePath, bool enableHotReload = false)
+    /// <inheritdoc />
+    public IConfigurationSourceBuilder AddJsonFile(string filePath, bool isOptional = false, bool enableHotReload = false)
     {
         ArgumentException.ThrowIfNullOrEmpty(filePath, nameof(filePath));
+        
+        if (!isOptional && !File.Exists(filePath))
+        {
+            throw new InvalidOperationException($"JSON configuration file '{filePath}' not found and is not optional.");
+        }
+
+        if (!File.Exists(filePath))
+        {
+            return this; // Skip if optional and missing
+        }
+
         var source = new FileConfigSource(filePath, new JsonConfigParser());
         
         if (enableHotReload)
@@ -70,12 +80,21 @@ internal sealed class ConfigurationSourceBuilder : IConfigurationSourceBuilder
         return this;
     }
 
-    /// <summary>
-    /// Adds a YAML file source.
-    /// </summary>
-    public IConfigurationSourceBuilder AddYamlFile(string filePath, bool enableHotReload = false)
+    /// <inheritdoc />
+    public IConfigurationSourceBuilder AddYamlFile(string filePath, bool isOptional = false, bool enableHotReload = false)
     {
         ArgumentException.ThrowIfNullOrEmpty(filePath, nameof(filePath));
+        
+        if (!isOptional && !File.Exists(filePath))
+        {
+            throw new InvalidOperationException($"YAML configuration file '{filePath}' not found and is not optional.");
+        }
+
+        if (!File.Exists(filePath))
+        {
+            return this;
+        }
+
         var source = new FileConfigSource(filePath, new YamlConfigParser());
         
         if (enableHotReload)
@@ -92,12 +111,21 @@ internal sealed class ConfigurationSourceBuilder : IConfigurationSourceBuilder
         return this;
     }
 
-    /// <summary>
-    /// Adds a TOML file source.
-    /// </summary>
-    public IConfigurationSourceBuilder AddTomlFile(string filePath, bool enableHotReload = false)
+    /// <inheritdoc />
+    public IConfigurationSourceBuilder AddTomlFile(string filePath, bool isOptional = false, bool enableHotReload = false)
     {
         ArgumentException.ThrowIfNullOrEmpty(filePath, nameof(filePath));
+        
+        if (!isOptional && !File.Exists(filePath))
+        {
+            throw new InvalidOperationException($"TOML configuration file '{filePath}' not found and is not optional.");
+        }
+
+        if (!File.Exists(filePath))
+        {
+            return this;
+        }
+
         var source = new FileConfigSource(filePath, new TomlConfigParser());
         
         if (enableHotReload)
@@ -114,12 +142,21 @@ internal sealed class ConfigurationSourceBuilder : IConfigurationSourceBuilder
         return this;
     }
 
-    /// <summary>
-    /// Adds an INI file source.
-    /// </summary>
-    public IConfigurationSourceBuilder AddIniFile(string filePath, bool enableHotReload = false)
+    /// <inheritdoc />
+    public IConfigurationSourceBuilder AddIniFile(string filePath, bool isOptional = false, bool enableHotReload = false)
     {
         ArgumentException.ThrowIfNullOrEmpty(filePath, nameof(filePath));
+        
+        if (!isOptional && !File.Exists(filePath))
+        {
+            throw new InvalidOperationException($"INI configuration file '{filePath}' not found and is not optional.");
+        }
+
+        if (!File.Exists(filePath))
+        {
+            return this;
+        }
+
         var source = new FileConfigSource(filePath, new IniConfigParser());
         
         if (enableHotReload)
@@ -136,12 +173,21 @@ internal sealed class ConfigurationSourceBuilder : IConfigurationSourceBuilder
         return this;
     }
 
-    /// <summary>
-    /// Adds an XML file source.
-    /// </summary>
-    public IConfigurationSourceBuilder AddXmlFile(string filePath, bool enableHotReload = false)
+    /// <inheritdoc />
+    public IConfigurationSourceBuilder AddXmlFile(string filePath, bool isOptional = false, bool enableHotReload = false)
     {
         ArgumentException.ThrowIfNullOrEmpty(filePath, nameof(filePath));
+        
+        if (!isOptional && !File.Exists(filePath))
+        {
+            throw new InvalidOperationException($"XML configuration file '{filePath}' not found and is not optional.");
+        }
+
+        if (!File.Exists(filePath))
+        {
+            return this;
+        }
+
         var source = new FileConfigSource(filePath, new XmlConfigParser());
         
         if (enableHotReload)
@@ -258,6 +304,47 @@ internal sealed class ConfigurationSourceBuilder : IConfigurationSourceBuilder
     {
         ArgumentNullException.ThrowIfNull(source, nameof(source));
         _configBuilder.AddSource(source);
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IConfigurationSourceBuilder AddDefaults(IEnumerable<KeyValuePair<string, string>> defaults, string? name = null)
+    {
+        ArgumentNullException.ThrowIfNull(defaults, nameof(defaults));
+        
+        // Defaults are added first so other sources can override them
+        _configBuilder.AddSource(new MemoryConfigSource(defaults, name ?? "defaults"));
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IConfigurationSourceBuilder RegisterPreset(string presetName, IEnumerable<KeyValuePair<string, string>> configuration)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(presetName, nameof(presetName));
+        ArgumentNullException.ThrowIfNull(configuration, nameof(configuration));
+
+        var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var kvp in configuration)
+        {
+            dict[kvp.Key] = kvp.Value;
+        }
+
+        _presets.Register(presetName, dict);
+        return this;
+    }
+
+    /// <inheritdoc />
+    public IConfigurationSourceBuilder UsePreset(string presetName)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(presetName, nameof(presetName));
+
+        var preset = _presets.Get(presetName);
+        if (preset.Count == 0)
+        {
+            throw new InvalidOperationException($"Preset '{presetName}' is not registered. Available presets: {string.Join(", ", _presets.GetNames())}");
+        }
+
+        _configBuilder.AddSource(new MemoryConfigSource(preset, $"preset:{presetName}"));
         return this;
     }
 

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-02-23
+
+### Added
+- Optional file parameter for all file-based sources (`isOptional` flag)
+- JSON file source with hot-reload support via overload method
+- Consistent hot-reload API across all format parsers (JSON, YAML, TOML, INI, XML)
+- Graceful handling of missing optional configuration files
+- Default configuration values via `AddDefaults()` method
+- Configuration presets for reusable settings via `RegisterPreset()` and `UsePreset()` methods
+- `ConfigurationPresets` class for managing named preset configurations
+- API audit and consistency improvements for launch readiness
+
+### Changed
+- All `AddXxxFile()` methods now support both `isOptional` and `enableHotReload` parameters
+- Improved consistency between JSON and other format parsers
+- Enhanced error messages for missing required configuration files
+
 ## [0.4.0] - 2026-02-23
 
 ### Added
@@ -66,7 +83,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Performance benchmarks using BenchmarkDotNet
 - Full XML documentation on all public APIs
 
-[Unreleased]: https://github.com/jamesgober/dotnet-config-kit/compare/0.4.0...HEAD
+[Unreleased]: https://github.com/jamesgober/dotnet-config-kit/compare/0.5.0...HEAD
+[0.5.0]: https://github.com/jamesgober/dotnet-config-kit/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/jamesgober/dotnet-config-kit/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/jamesgober/dotnet-config-kit/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/jamesgober/dotnet-config-kit/compare/0.1.0...0.2.0

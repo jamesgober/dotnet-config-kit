@@ -50,8 +50,13 @@ var services = new ServiceCollection();
 services
     .AddConfiguration()
     .WithAutoProfile()
+    .AddDefaults(new Dictionary<string, string>
+    {
+        { "maxConnections", "10" },
+        { "enableLogging", "true" }
+    })
     .AddJsonFile("appsettings.json")
-    .AddJsonFile("appsettings.{profile}.json")
+    .AddJsonFile("appsettings.{profile}.json", isOptional: true)
     .AddEnvironmentVariables("MYAPP")
     .AddCommandLineArguments(args)
     .Build<AppConfig>();
@@ -78,420 +83,106 @@ Logging: False
 
 ---
 
-## Common Patterns
+## Common Configuration Patterns
 
-### Multi-Environment Configuration
+### Using Default Values
 
-```csharp
-var environment = Environment.GetEnvironmentVariable("ENVIRONMENT") ?? "development";
-
-services
-    .AddConfiguration()
-    .AddJsonFile("appsettings.json")
-    .AddJsonFile($"appsettings.{environment}.json")
-    .Build<AppConfig>();
-```
-
-**Files:**
-- `appsettings.json` — Defaults
-- `appsettings.development.json` — Dev overrides
-- `appsettings.production.json` — Prod overrides
-
-Later files override earlier ones. Production secrets can be in `appsettings.production.json` (gitignored).
-
-### Environment Variables Override
+Default values are useful for optional settings that should have sensible fallbacks:
 
 ```csharp
 services
     .AddConfiguration()
-    .AddJsonFile("appsettings.json")
-    .AddEnvironmentVariables("MYAPP")
-    .Build<AppConfig>();
+    .AddDefaults(new Dictionary<string, string>
+    {
+        { "api.timeout", "30" },
+        { "api.retries", "3" },
+        { "cache.enabled", "true" }
+    })
+    .AddJsonFile("appsettings.json", isOptional: true)
+    .AddEnvironmentVariables("APP")
+    .Build<AppSettings>();
 ```
 
-Environment variables are loaded last, so they override JSON:
+Defaults are applied first, so environment variables or files can override them.
 
-```bash
-export MYAPP_DATABASEURL="Server=prod-db.com"
-export MYAPP_MAXCONNECTIONS=100
+### Using Configuration Presets
+
+Presets are perfect for environment-specific configurations. Define them once and reuse across your app:
+
+```csharp
+services
+    .AddConfiguration()
+    .RegisterPreset("development", new Dictionary<string, string>
+    {
+        { "database.host", "localhost" },
+        { "database.port", "5432" },
+        { "logging.level", "Debug" },
+        { "features.strictValidation", "true" }
+    })
+    .RegisterPreset("production", new Dictionary<string, string>
+    {
+        { "database.host", "prod.db.example.com" },
+        { "database.port", "5432" },
+        { "logging.level", "Error" },
+        { "features.strictValidation", "false" }
+    })
+    .UsePreset(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "development")
+    .AddJsonFile("appsettings.json", isOptional: true)
+    .Build<AppSettings>();
 ```
 
-### Command-Line Arguments
+### Optional Configuration Files
+
+Load environment-specific files without errors if they're missing:
+
+```csharp
+services
+    .AddConfiguration()
+    .AddJsonFile("appsettings.json")  // Required - will error if missing
+    .AddJsonFile("appsettings.local.json", isOptional: true)  // Optional
+    .AddJsonFile("appsettings.{profile}.json", isOptional: true, enableHotReload: true)
+    .Build<AppSettings>();
+```
+
+### Hot-Reload Configuration
+
+Watch for configuration file changes and reload automatically:
 
 ```csharp
 services
     .AddConfiguration()
     .AddJsonFile("appsettings.json")
-    .AddCommandLineArguments(args)
-    .Build<AppConfig>();
-```
+    .AddJsonFile("appsettings.local.json", isOptional: true, enableHotReload: true)
+    .AddYamlFile("features.yaml", enableHotReload: true)
+    .Build<AppSettings>();
 
-Run with:
-```bash
-dotnet run -- --maxConnections 50 --enableLogging=false
-```
-
-### Testing with In-Memory Configuration
-
-```csharp
-[Fact]
-public void TestWithConfiguration()
+// Subscribe to changes
+var hotReload = provider.GetRequiredService<HotReloadFileSource>();
+hotReload.OnChange(newConfig =>
 {
-    var testConfig = new Dictionary<string, string>
-    {
-        { "databaseUrl", "Server=test-db" },
-        { "maxConnections", "5" }
-    };
-
-    var services = new ServiceCollection();
-    services
-        .AddConfiguration()
-        .AddMemory(testConfig)
-        .Build<AppConfig>();
-
-    var config = services.BuildServiceProvider().GetRequiredService<AppConfig>();
-    
-    Assert.Equal("Server=test-db", config.DatabaseUrl);
-    Assert.Equal(5, config.MaxConnections);
-}
-```
-
-### Nested Configuration
-
-Define nested classes:
-
-```csharp
-public class AppConfig
-{
-    public DatabaseConfig? Database { get; set; }
-    public LoggingConfig? Logging { get; set; }
-}
-
-public class DatabaseConfig
-{
-    public string? Host { get; set; }
-    public int Port { get; set; } = 5432;
-    public string? Username { get; set; }
-    public string? Password { get; set; }
-}
-
-public class LoggingConfig
-{
-    public string? Level { get; set; } = "Info";
-    public bool Console { get; set; } = true;
-    public bool File { get; set; } = false;
-}
-```
-
-**appsettings.json:**
-```json
-{
-  "database": {
-    "host": "localhost",
-    "port": 5432,
-    "username": "sa",
-    "password": "password"
-  },
-  "logging": {
-    "level": "Debug",
-    "console": true,
-    "file": true
-  }
-}
-```
-
-Configuration is bound recursively to nested properties.
-
-### Enum Configuration
-
-```csharp
-public enum LogLevel { Debug, Info, Warning, Error, Critical }
-
-public class AppConfig
-{
-    public LogLevel LogLevel { get; set; } = LogLevel.Info;
-}
-```
-
-**appsettings.json:**
-```json
-{
-  "logLevel": "Warning"
-}
-```
-
-Enums are matched case-insensitively.
-
-### Asynchronous Loading
-
-For loading from async sources (remote config servers, databases):
-
-```csharp
-var services = new ServiceCollection();
-
-await services
-    .AddConfiguration()
-    .AddJsonFile("appsettings.json")
-    .AddSource(new RemoteConfigSource("https://config.example.com"))
-    .BuildAsync<AppConfig>();
-```
-
-### Custom Configuration Source
-
-Implement `IConfigSource`:
-
-```csharp
-public class CustomSource : IConfigSource
-{
-    public string Name => "CustomSource";
-
-    public IReadOnlyDictionary<string, string> Load()
-    {
-        return new Dictionary<string, string>
-        {
-            { "custom.setting", "value" },
-            { "another.key", "another.value" }
-        };
-    }
-
-    public ValueTask<IReadOnlyDictionary<string, string>> LoadAsync(CancellationToken ct)
-    {
-        return new ValueTask<IReadOnlyDictionary<string, string>>(Load());
-    }
-}
-```
-
-Register it:
-```csharp
-services
-    .AddConfiguration()
-    .AddJsonFile("appsettings.json")
-    .AddSource(new CustomSource())
-    .Build<AppConfig>();
-```
-
-### Error Handling
-
-Catch binding errors at startup:
-
-```csharp
-try
-{
-    services
-        .AddConfiguration()
-        .AddJsonFile("appsettings.json")
-        .Build<AppConfig>();
-}
-catch (InvalidOperationException ex)
-{
-    Console.Error.WriteLine($"Configuration error: {ex.Message}");
-    Environment.Exit(1);
-}
-```
-
-Or check for errors without binding:
-
-```csharp
-var config = new Dictionary<string, string>
-{
-    { "maxConnections", "not_a_number" }
-};
-
-var binder = new ReflectionConfigBinder<AppConfig>();
-var errors = binder.GetValidationErrors(config);
-
-if (errors.Count > 0)
-{
-    foreach (var error in errors)
-    {
-        Console.WriteLine($"Error: {error.Path} — {error.Message}");
-        Console.WriteLine($"  Value: {error.AttemptedValue}");
-    }
-}
+    Console.WriteLine("Configuration reloaded!");
+    var updatedSettings = provider.GetRequiredService<AppSettings>();
+});
 ```
 
 ---
 
-## Advanced Usage
+## What's New in v0.5.0
 
-### Key Naming Conventions
+**Launch Polish Release** includes:
 
-Configuration keys are **case-insensitive** and use **dot notation**:
+- ✅ **Default values** via `AddDefaults()` — Set fallback configuration
+- ✅ **Configuration presets** — Register and reuse common configurations
+- ✅ **Consistent hot-reload** — All file formats support `enableHotReload`
+- ✅ **Optional files** — All file sources support `isOptional` parameter
+- ✅ **API consistency** — Unified API across all configuration sources
 
-```json
-{
-  "App": {
-    "Name": "MyApp"
-  }
-}
-```
-
-Maps to all of these (same property):
-- `app.name`
-- `APP.NAME`
-- `App.Name`
-- `AppName` (if property doesn't nest)
-
-### Environment Variable Mapping
-
-Underscores in environment variables become dots, enabling hierarchical configuration:
-
-```bash
-# Maps to: database.connection.host
-DATABASE_CONNECTION_HOST=localhost
-
-# Maps to: database.pool.max_size (double underscore → single dot)
-DATABASE_POOL__MAX_SIZE=10
-```
-
-### Configuration Priority
-
-Sources are loaded in registration order. **Last wins:**
-
-```csharp
-.AddJsonFile("defaults.json")        // Loaded first
-.AddJsonFile("overrides.json")       // Overrides defaults
-.AddEnvironmentVariables()           // Overrides both
-```
-
-### Supported Types
-
-- **Primitives:** `string`, `bool`, `byte`, `short`, `int`, `long`, `float`, `double`, `decimal`
-- **Special Types:** `Guid`, `DateTime`, `TimeSpan`
-- **Enums:** Case-insensitive matching
-- **Nullable:** `int?`, `bool?`, etc.
-- **Nested Types:** Other classes with parameterless constructors
-- **Collections:** Limited to arrays and lists (via indexing)
-
-### Validation at Startup
-
-Errors are caught during binding, not at runtime:
-
-```csharp
-var config = new Dictionary<string, string>
-{
-    { "port", "invalid" }  // This will throw during Build<AppConfig>()
-};
-
-try
-{
-    services
-        .AddConfiguration()
-        .AddMemory(config)
-        .Build<AppConfig>();  // ← Throws here, not later
-}
-catch (InvalidOperationException ex)
-{
-    Console.WriteLine($"Configuration invalid: {ex.Message}");
-}
-```
-
----
-
-## Best Practices
-
-### ✅ DO
-
-- **Load configuration once** at application startup
-- **Use environment-specific files** for secrets and overrides
-- **Validate configuration early** (during startup, not at runtime)
-- **Use enums** for restricted values
-- **Organize configuration** into nested classes
-- **Document configuration keys** in comments or documentation
-- **Use HTTPS** for remote configuration sources
-- **Test configuration** with in-memory sources
-
-### ❌ DON'T
-
-- **Don't load configuration multiple times** — Cache it in DI
-- **Don't commit secrets** to source control — Use environment variables
-- **Don't trust untrusted configuration sources** — Validate all input
-- **Don't reload configuration at runtime** without careful synchronization
-- **Don't pass configuration files as constructor arguments** — Use DI
-- **Don't parse configuration manually** — Use the binder
-- **Don't block on async configuration loading** — Use `BuildAsync<T>()`
-
----
-
-## Troubleshooting
-
-### Configuration Not Binding
-
-**Issue:** Properties remain at default values.
-
-**Cause:** Key names don't match property names.
-
-**Solution:** Check key casing and nesting. Use dots for nested objects:
-```json
-{
-  "database": {
-    "host": "localhost"  // Becomes "database.host"
-  }
-}
-```
-
-### Type Conversion Error
-
-**Error:** `InvalidOperationException: Failed to bind to type Int32`
-
-**Cause:** Value cannot be converted to target type.
-
-**Solution:** Check configuration values are valid for their types:
-```json
-{
-  "port": 5432,        // ✅ Valid int
-  "port": "5432",      // ✅ String converted to int
-  "port": "invalid"    // ❌ Cannot convert
-}
-```
-
-### Environment Variable Not Loaded
-
-**Issue:** Environment variable doesn't affect configuration.
-
-**Cause:** 
-- Wrong prefix used
-- Variable name format incorrect
-- Loaded before environment variable source
-
-**Solution:**
-```csharp
-// With prefix "MYAPP", these are matched:
-// MYAPP_DATABASE_HOST
-// MYAPP_DEBUG
-
-// These are NOT matched:
-// DATABASE_HOST (no prefix)
-// MYAPPDATABASE_HOST (no underscore after prefix)
-// Other_HOST (different prefix)
-
-.AddEnvironmentVariables("MYAPP")  // ✅ Correct
-```
-
-### File Not Found
-
-**Issue:** Configuration from file is ignored.
-
-**Cause:** File doesn't exist in the expected location.
-
-**Solution:** Use absolute paths or check working directory:
-```csharp
-var configPath = Path.Combine(Directory.GetCurrentDirectory(), "appsettings.json");
-Console.WriteLine($"Looking for: {configPath}");
-Console.WriteLine($"Exists: {File.Exists(configPath)}");
-
-.AddJsonFile(configPath)
-```
+See [Changelog](../CHANGELOG.md) for complete release notes.
 
 ---
 
 ## Next Steps
 
-- **Read the [API Reference](API.md)** for complete API documentation
-- **Explore [Project Structure](PROJECT_STRUCTURE.md)** for architecture details
-- **Check [CHANGELOG](../CHANGELOG.md)** for version history
-- **View [README](../README.md)** for feature overview
-
----
-
-**Happy configuring! 🚀**
+- [**API Reference**](./API.md) — Complete API documentation
+- [**Configuration Sources**](./API.md#configuration-sources) — Detailed source documentation
+- [**Advanced Usage**](./ADVANCED.md) — Complex scenarios and patterns

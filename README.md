@@ -86,30 +86,36 @@ export MYAPP_PORT=5433
 
 ```csharp
 .AddJsonFile("appsettings.json")
+.AddJsonFile("appsettings.local.json", isOptional: true)  // Skip if missing
+.AddJsonFile("appsettings.prod.json", isOptional: true, enableHotReload: true)
 ```
 
 ### YAML Files
 
 ```csharp
 .AddYamlFile("config.yaml", enableHotReload: true)
+.AddYamlFile("config.local.yaml", isOptional: true)
 ```
 
 ### TOML Files
 
 ```csharp
 .AddTomlFile("config.toml")
+.AddTomlFile("config.local.toml", isOptional: true)
 ```
 
 ### INI Files
 
 ```csharp
 .AddIniFile("config.ini")
+.AddIniFile("config.local.ini", isOptional: true, enableHotReload: true)
 ```
 
 ### XML Files
 
 ```csharp
 .AddXmlFile("config.xml")
+.AddXmlFile("config.local.xml", isOptional: true)
 ```
 
 ### Environment Variables
@@ -367,3 +373,62 @@ var yamlConfig = configBuilder.ExportAsYaml();
 
 Console.WriteLine(jsonConfig);
 File.WriteAllText("exported-config.json", jsonConfig);
+```
+
+### Default Configuration Values
+
+Provide fallback values that can be overridden by other sources:
+
+```csharp
+services
+    .AddConfiguration()
+    .AddDefaults(new Dictionary<string, string>
+    {
+        { "database.host", "localhost" },
+        { "database.port", "5432" },
+        { "logging.level", "Info" }
+    })
+    .AddJsonFile("appsettings.json", isOptional: true)
+    .AddEnvironmentVariables("MYAPP")
+    .Build<AppSettings>();
+```
+
+Defaults are applied first, so any later source can override them.
+
+### Configuration Presets
+
+Register and reuse common configurations across your application:
+
+```csharp
+// Register presets during setup
+services
+    .AddConfiguration()
+    .RegisterPreset("development", new Dictionary<string, string>
+    {
+        { "database.host", "localhost" },
+        { "logging.level", "Debug" },
+        { "features.strict-validation", "true" }
+    })
+    .RegisterPreset("production", new Dictionary<string, string>
+    {
+        { "database.host", "prod-db.example.com" },
+        { "logging.level", "Error" },
+        { "features.strict-validation", "false" }
+    })
+    // Load the appropriate preset based on environment
+    .UsePreset(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "development")
+    .AddJsonFile("appsettings.json", isOptional: true)
+    .Build<AppSettings>();
+```
+
+Or use presets with profiles:
+
+```csharp
+services
+    .AddConfiguration()
+    .RegisterPreset("dev", devDefaults)
+    .RegisterPreset("prod", prodDefaults)
+    .WithAutoProfile()
+    .UsePreset(builder.CurrentProfile ?? "dev")  // Load preset matching profile
+    .AddJsonFile($"appsettings.{profile}.json", isOptional: true)
+    .Build<AppSettings>();

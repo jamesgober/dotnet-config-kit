@@ -528,235 +528,180 @@ var config = source.Load();
 
 ---
 
-### `ReflectionConfigBinder<T>`
+## v0.5.0 New Features
 
-**Namespace:** `dotnet_config_kit.Internal.Binding`
+### `ConfigurationPresets` ⭐ NEW
 
-Binds flat configuration to strongly-typed objects using reflection.
+**Namespace:** `dotnet_config_kit.Internal`
 
-**Type Parameters:**
-- `T` (class): Target type. Must have parameterless constructor.
+Manages preset configurations for reuse across multiple configurations.
 
-**Supported Types:**
-- String, bool
-- byte, short, int, long
-- float, double, decimal
-- Guid, DateTime, TimeSpan
-- Enums (case-insensitive)
-- Nullable versions of above
-- Custom types with default constructors (via nested binding)
+#### Members
+
+```csharp
+void Register(string name, IReadOnlyDictionary<string, string> configuration)
+```
+Registers a preset configuration.
+
+**Parameters:**
+- `name` (string): The preset name (e.g., "development", "production").
+- `configuration` (IReadOnlyDictionary): The preset configuration dictionary.
+
+```csharp
+IReadOnlyDictionary<string, string> Get(string name)
+```
+Gets a registered preset configuration.
+
+**Parameters:**
+- `name` (string): The preset name.
+
+**Returns:** The preset configuration, or empty dictionary if not found.
+
+```csharp
+bool Exists(string name)
+```
+Checks if a preset is registered.
+
+**Parameters:**
+- `name` (string): The preset name.
+
+**Returns:** True if the preset exists, false otherwise.
+
+**Example:**
+```csharp
+var presets = new ConfigurationPresets();
+presets.Register("dev", new Dictionary<string, string>
+{
+    { "database.host", "localhost" },
+    { "logging.level", "Debug" }
+});
+
+var devConfig = presets.Get("dev");
+var isDev = presets.Exists("dev");  // true
+```
+
+---
+
+## v0.5.0 Extension Methods
+
+### Default Configuration Values
+
+```csharp
+IConfigurationSourceBuilder AddDefaults(
+    IEnumerable<KeyValuePair<string, string>> defaults, 
+    string? name = null)
+```
+
+Adds default configuration values that serve as a fallback. Defaults are applied first, so other sources can override them.
+
+**Parameters:**
+- `defaults` (IEnumerable<KeyValuePair>): The default configuration key-value pairs.
+- `name` (string?): Optional name for this defaults source.
+
+**Returns:** Self for method chaining.
 
 **Usage:**
 ```csharp
-public class Settings
-{
-    public string? AppName { get; set; }
-    public int Port { get; set; }
-    public bool DebugMode { get; set; }
-    public LogLevel Level { get; set; }
-    public DatabaseSettings Database { get; set; } = new();
-}
-
-public class DatabaseSettings
-{
-    public string? Host { get; set; }
-    public int Port { get; set; }
-}
-
-public enum LogLevel { Debug, Info, Warning, Error }
-
-var binder = new ReflectionConfigBinder<Settings>();
-var settings = binder.Bind(config);
-```
-
----
-
-### `IConfigValueConverter<T>` ⭐ NEW in v0.3.0
-
-**Namespace:** `dotnet_config_kit.Abstractions`
-
-Contract for converting configuration string values to strongly-typed values.
-
-**Type Parameters:**
-- `T`: The target type to convert to.
-
-#### Members
-
-```csharp
-T Convert(string? value)
-```
-Converts a string value to the target type.
-
-**Parameters:**
-- `value` (string?): The string value to convert. May be null or empty.
-
-**Returns:** The converted value.
-
-**Exceptions:**
-- `ArgumentException`: Thrown when the value cannot be converted.
-
-**Example:**
-```csharp
-public class UriConverter : IConfigValueConverter<Uri>
-{
-    public Uri Convert(string? value)
+services
+    .AddConfiguration()
+    .AddDefaults(new Dictionary<string, string>
     {
-        if (string.IsNullOrEmpty(value))
-            throw new ArgumentException("URI cannot be empty");
-        return new Uri(value);
-    }
-}
-
-// Register and use
-var binder = new EnhancedReflectionConfigBinder<AppSettings>();
-binder.RegisterConverter<Uri>(new UriConverter());
-var settings = binder.Bind(config);
+        { "api.timeout", "30" },
+        { "logging.level", "Info" },
+        { "features.caching", "true" }
+    })
+    .AddJsonFile("appsettings.json", isOptional: true)
+    .AddEnvironmentVariables("APP")
+    .Build<AppSettings>();
 ```
+
+**Behavior:**
+- Defaults are applied FIRST
+- Later sources (environment variables, files, CLI args) override defaults
+- Missing keys in later sources fall back to defaults
+- Perfect for development environments with optional production overrides
 
 ---
 
-### `EnhancedReflectionConfigBinder<T>` ⭐ NEW in v0.3.0
-
-**Namespace:** `dotnet_config_kit.Internal.Binding`
-
-Enhanced reflection-based binder with custom converters and DataAnnotations validation support.
-
-**Type Parameters:**
-- `T` (class): The target type to bind configuration to.
-
-#### Members
+### Configuration Presets
 
 ```csharp
-void RegisterConverter<TValue>(IConfigValueConverter<TValue> converter)
+IConfigurationSourceBuilder RegisterPreset(
+    string presetName, 
+    IEnumerable<KeyValuePair<string, string>> configuration)
 ```
-Registers a custom type converter.
 
-**Type Parameters:**
-- `TValue`: The type to convert to.
+Registers a configuration preset for reuse.
 
 **Parameters:**
-- `converter` (IConfigValueConverter<TValue>): The converter implementation.
+- `presetName` (string): The name of the preset (e.g., "development", "production").
+- `configuration` (IEnumerable<KeyValuePair>): The preset configuration.
 
-**Example:**
-```csharp
-var binder = new EnhancedReflectionConfigBinder<AppSettings>();
-binder.RegisterConverter<IPAddress>(s => IPAddress.Parse(s));
-binder.RegisterConverter<Uri>(new UriConverter());
-
-var settings = binder.Bind(config);
-
-```
+**Returns:** Self for method chaining.
 
 ---
 
-## New Extension Methods in v0.3.0
-
-Added additional methods to the configuration builder interface for improved functionality.
-
-### Command-Line Arguments
-
 ```csharp
-IConfigurationSourceBuilder AddCommandLineArguments(string[] args)
+IConfigurationSourceBuilder UsePreset(string presetName)
 ```
-Adds a command-line arguments source.
+Loads a registered preset configuration.
 
 **Parameters:**
-- `args` (string[]): Command-line arguments from Main(). Must not be null.
+- `presetName` (string): The name of the preset to load.
 
 **Returns:** Self for method chaining.
 
-**Remarks:**
-- Supports `--key=value`, `--key value`, and `-k value` formats
-- Flags without values default to "true": `--flag` → `"true"`
-- Later sources override earlier ones (command-line highest priority)
+**Throws:** `InvalidOperationException` when preset is not registered.
 
-**Example:**
+**Usage:**
 ```csharp
-.AddCommandLineArguments(args)
-// Usage: app --database-host=localhost --port 5432 --debug
+services
+    .AddConfiguration()
+    .RegisterPreset("development", devDefaults)
+    .RegisterPreset("production", prodDefaults)
+    .RegisterPreset("staging", stagingDefaults)
+    .UsePreset(Environment.GetEnvironmentVariable("APP_ENV") ?? "development")
+    .AddJsonFile("appsettings.json", isOptional: true)
+    .AddEnvironmentVariables("APP")
+    .Build<AppSettings>();
 ```
+
+**When to Use:**
+- Multiple environment configurations
+- Team preset configurations (e.g., each developer has a preset)
+- Template-based configurations
+- Feature flags per environment
 
 ---
 
-### User Secrets
+## Complete v0.5.0 File Source Methods
+
+All file source methods now support both `isOptional` and `enableHotReload` parameters:
 
 ```csharp
-IConfigurationSourceBuilder AddUserSecrets<T>() where T : class
+IConfigurationSourceBuilder AddJsonFile(string filePath, bool isOptional = false, bool enableHotReload = false)
+IConfigurationSourceBuilder AddYamlFile(string filePath, bool isOptional = false, bool enableHotReload = false)
+IConfigurationSourceBuilder AddTomlFile(string filePath, bool isOptional = false, bool enableHotReload = false)
+IConfigurationSourceBuilder AddIniFile(string filePath, bool isOptional = false, bool enableHotReload = false)
+IConfigurationSourceBuilder AddXmlFile(string filePath, bool isOptional = false, bool enableHotReload = false)
 ```
-Adds a user secrets source using assembly's UserSecretsIdAttribute.
-
-**Type Parameters:**
-- `T` (class): The assembly type to scan for UserSecretsIdAttribute.
-
-**Returns:** Self for method chaining.
-
-**Exceptions:**
-- `InvalidOperationException`: When UserSecretsIdAttribute is not found.
-
-**Example:**
-```csharp
-// Requires: [assembly: UserSecretsId("my-app-id")]
-.AddUserSecrets<Program>()
-```
-
----
-
-```csharp
-IConfigurationSourceBuilder AddUserSecrets(string userSecretsId)
-```
-Adds a user secrets source with explicit UserSecretsId.
 
 **Parameters:**
-- `userSecretsId` (string): The UserSecretsId. Must not be null or empty.
+- `filePath` (string): Path to the configuration file.
+- `isOptional` (bool): If true, ignores missing files. Default: false.
+- `enableHotReload` (bool): If true, watches for changes and reloads. Default: false.
 
-**Returns:** Self for method chaining.
-
-**Remarks:** Loads from `~/.microsoft/usersecrets/{userSecretsId}/secrets.json`
-
-**Example:**
+**Examples:**
 ```csharp
-.AddUserSecrets("my-app-id")
-// Searches: ~/.microsoft/usersecrets/my-app-id/secrets.json
-```
+// Required file, no hot-reload
+.AddJsonFile("appsettings.json")
 
----
+// Optional file with hot-reload
+.AddYamlFile("features.yaml", isOptional: true, enableHotReload: true)
 
-### Configuration Profile
+// Required base config, optional environment override
+.AddJsonFile("appsettings.json")
+.AddJsonFile("appsettings.local.json", isOptional: true)
 
-```csharp
-IConfigurationSourceBuilder WithProfile(string? profile)
-```
-Sets the configuration profile for environment-specific settings.
-
-**Parameters:**
-- `profile` (string?): The profile name (e.g., "development", "production").
-
-**Returns:** Self for method chaining.
-
-**Example:**
-```csharp
-.WithProfile("production")
-.AddJsonFile("appsettings.{profile}.json")
-// Loads: appsettings.production.json
-```
-
----
-
-```csharp
-IConfigurationSourceBuilder WithAutoProfile()
-```
-Auto-detects the configuration profile from environment variables.
-
-**Checks:**
-- `ASPNETCORE_ENVIRONMENT`
-- `ENVIRONMENT`
-- `DOTNET_ENVIRONMENT`
-
-**Returns:** Self for method chaining.
-
-**Example:**
-```csharp
-.WithAutoProfile()
-// If ASPNETCORE_ENVIRONMENT=production → profile="production"
-.AddJsonFile("appsettings.{profile}.json")
-// Loads: appsettings.production.json
+// Profile-specific files that may not exist
+.AddJsonFile("appsettings.{profile}.json", isOptional: true, enableHotReload: true)
