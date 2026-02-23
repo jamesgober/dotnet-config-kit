@@ -23,10 +23,10 @@ jobs:
           dotnet-version: ${{ matrix.dotnet }}
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore dotnet-config-kit.sln
 
       - name: Build
-        run: dotnet build --no-restore --configuration Release -warnaserror
+        run: dotnet build dotnet-config-kit.sln --no-restore --configuration Release -warnaserror
 
       - name: Test
-        run: dotnet test --no-build --configuration Release --verbosity normal
+        run: dotnet test dotnet-config-kit.sln --no-build --configuration Release --verbosity normal
